@@ -41,7 +41,6 @@ def main():
 
             xDiff = int(faceCenterX - face[4][0])
             yDiff = -int(faceCenterY - face[4][1])
-            print(xDiff, yDiff)
 
             if abs(yDiff) > 5:
                 keyboard.press('shift')
@@ -68,7 +67,6 @@ def main():
                 keyboard.press('d')
                 keyboard.release('a')
 
-        cv2.imshow("FaceGaming", frame)
         key = cv2.waitKey(1)
         if key == ord('q'):
             break
