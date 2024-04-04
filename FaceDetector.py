@@ -1,30 +1,46 @@
 import cv2
 import mediapipe as mp
+from mediapipe.tasks import python
+import time
 
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
 
+BaseOptions = mp.tasks.BaseOptions
+FaceLandmarker = mp.tasks.vision.FaceLandmarker
+FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
+FaceLandmarkerResult = mp.tasks.vision.FaceLandmarkerResult
+VisionRunningMode = mp.tasks.vision.RunningMode
 
-class FaceMeshDetector:
-    def __init__(self):
-        self.face_mesh = mp.solutions.face_mesh.FaceMesh(refine_landmarks=True)
-
-    def findFaceMesh(self, frame):
-        faceLandmarks = []
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        output = self.face_mesh.process(rgb_frame)
-        landmark_points = output.multi_face_landmarks
-        if landmark_points is not None:
-            landmarks = landmark_points[0].landmark
-            for lm in landmarks:
-                ih, iw, ic = frame.shape
-                x, y = int(lm.x * iw), int(lm.y * ih)
-                faceLandmarks.append([x, y])
-        return faceLandmarks
+flag = True
 
 
-def GetFaceLandmarkArray():
-    ret, frame = cap.read()
-    detector = FaceMeshDetector()
-    return detector.findFaceMesh(frame), frame
+def print_result(result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
+    if result.face_landmarks.__len__() == 0:
+        global flag
+        flag = False
+    print(format(result.face_landmarks))
+
+
+options = FaceLandmarkerOptions(
+    base_options=BaseOptions(model_asset_path="face_landmarker.task"),
+    running_mode=VisionRunningMode.LIVE_STREAM,
+    result_callback=print_result,
+    output_face_blendshapes=True,
+    output_facial_transformation_matrixes=True)
+
+
+def DetectFaceLandmarks():
+    with FaceLandmarker.create_from_options(options) as landmarker:
+        while flag:
+            ms = time.time() * 1000.0
+            ret, frame = cap.read()
+            if ret:
+                mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
+                landmarker.detect_async(mp_image, int(ms))
+                cv2.imshow("FaceGaming", frame)
+            key = cv2.waitKey(1)
+            if key == ord('q'):
+                break
+        cv2.destroyAllWindows()
