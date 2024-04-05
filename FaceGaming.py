@@ -2,7 +2,7 @@ import win32api
 import win32con
 import keyboard
 import FaceDetector
-import GUI
+import GUI.GUI as GUI
 
 
 def main():
@@ -12,3 +12,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
