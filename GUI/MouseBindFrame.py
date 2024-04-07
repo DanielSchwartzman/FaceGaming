@@ -23,27 +23,34 @@ def DisplayErrorToast():
     toast.show_toast()
 
 
-def MouseMovementSelect(ComboBox, HeadTrackingTaken):
+def MouseMovementSelect(ComboBox, MouseAndWSADTaken):
     global MouseMovement
-    if HeadTrackingTaken[0] == 1 and ComboBox.current() == 2:
+    if 1 <= MouseAndWSADTaken[0] <= 2 and ComboBox.current() == 2:
         DisplayErrorToast()
         ComboBox.current(MouseMovement)
     else:
         MouseMovement = ComboBox.current()
+        MouseAndWSADTaken[1] = 0
         if MouseMovement == 2:
-            HeadTrackingTaken[0] = 1
+            MouseAndWSADTaken[0] = 3
+        elif MouseMovement == 1:
+            if MouseAndWSADTaken[0] == 3:
+                MouseAndWSADTaken[0] = 0
+            MouseAndWSADTaken[1] = 1
         else:
-            HeadTrackingTaken[0] = 0
+            if MouseAndWSADTaken[0] == 3:
+                MouseAndWSADTaken[0] = 0
+
     return 'break'
 
 
 def LeftClickSelect(ComboBox, KeyBindingTaken):
     global LeftClick
-    if KeyBindingTaken[ComboBox.current()] == 1:
+    if KeyBindingTaken[ComboBox.current()] != 0:
         DisplayErrorToast()
         ComboBox.current(LeftClick)
     else:
-        KeyBindingTaken[LeftClick] = 1
+        KeyBindingTaken[LeftClick] = 0
         LeftClick = ComboBox.current()
         KeyBindingTaken[ComboBox.current()] = 1
     return 'break'
@@ -51,17 +58,17 @@ def LeftClickSelect(ComboBox, KeyBindingTaken):
 
 def RightClickSelect(ComboBox, KeyBindingTaken):
     global RightClick
-    if KeyBindingTaken[ComboBox.current()] == 1:
+    if KeyBindingTaken[ComboBox.current()] != 0:
         DisplayErrorToast()
         ComboBox.current(RightClick)
     else:
-        KeyBindingTaken[RightClick] = 1
+        KeyBindingTaken[RightClick] = 0
         RightClick = ComboBox.current()
-        KeyBindingTaken[ComboBox.current()] = 1
+        KeyBindingTaken[ComboBox.current()] = 2
     return 'break'
 
 
-def MouseBindFrameInit(WindowFrame, KeyBindingTaken, HeadTrackingTaken):
+def MouseBindFrameInit(WindowFrame, KeyBindingTaken, MouseAndWSADTaken):
     MouseBindFrame = bs.Frame(WindowFrame, width=640, height=700)
     MouseBindFrame.pack(side=TOP)
 
@@ -70,7 +77,7 @@ def MouseBindFrameInit(WindowFrame, KeyBindingTaken, HeadTrackingTaken):
     MouseSelectComboBox = bs.Combobox(MouseBindFrame, values=MouseOption, state='readonly')
     MouseSelectComboBox.current(MouseMovement)
     MouseSelectComboBox.bind('<<ComboboxSelected>>', lambda event, entry=MouseSelectComboBox: MouseMovementSelect(
-        ComboBox=entry, HeadTrackingTaken=HeadTrackingTaken))
+        ComboBox=entry, MouseAndWSADTaken=MouseAndWSADTaken))
     MouseSelectLabel = bs.Label(MouseBindFrame, text="Mouse movement method:", font=("Arial", 12))
     MouseSelectLabel.place(x=20, y=75)
     MouseSelectComboBox.place(x=220, y=71.5)

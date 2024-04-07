@@ -1,13 +1,12 @@
-import win32api
-import win32con
-import keyboard
 import FaceDetector
-import GUI.GUI as GUI
+import sys
+sys.path.append("GUI/")
+import GUI
 
 
 def main():
     GUI.GUI_Main()
-    FaceDetector.DetectFaceLandmarks()
+    FaceDetector.DetectFaceLandmarks(GUI.KeyBindingTaken, GUI.MouseAndWSADTaken)
 
 
 if __name__ == "__main__":

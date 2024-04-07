@@ -1,21 +1,20 @@
-from tkinter import *
-from ttkbootstrap.constants import *
 import ttkbootstrap as bs
+from ttkbootstrap.constants import *
 import OptionsFrame
 import EyeCalibrationFrame
 import KeyBoardFrame
 import MouseBindFrame
 
-GUI = bs.Window(themename="cerculean")
-GUI.title("FaceGaming")
-GUI.resizable(False, False)
-GUI.geometry("480x320")
-GUI.iconbitmap("../res/Icons/FaceGamingIcon.ico")
+GUIFrame = bs.Window(themename="cerculean")
+GUIFrame.title("FaceGaming")
+GUIFrame.resizable(False, False)
+GUIFrame.geometry("480x320")
+GUIFrame.iconbitmap("res/Icons/FaceGamingIcon.ico")
 
-WindowFrame = bs.Frame(GUI, width=640, height=700)
+WindowFrame = bs.Frame(GUIFrame, width=640, height=700)
 
 KeyBindingTaken = [0, 0, 0, 0, 0, 0, 0, 0]
-HeadTrackingTaken = [0]
+MouseAndWSADTaken = [0, 0]
 
 MouseMovement = 0
 LeftClick = 0
@@ -34,12 +33,12 @@ def EyeCalibrationFrameInit():
 
 def MouseBindFrameInit():
     DestroyPreviousFrame()
-    MouseBindFrame.MouseBindFrameInit(WindowFrame, KeyBindingTaken, HeadTrackingTaken)
+    MouseBindFrame.MouseBindFrameInit(WindowFrame, KeyBindingTaken, MouseAndWSADTaken)
 
 
 def KeyboardFrameInit():
     DestroyPreviousFrame()
-    KeyBoardFrame.KeyboardFrameInit(WindowFrame, KeyBindingTaken, HeadTrackingTaken)
+    KeyBoardFrame.KeyboardFrameInit(WindowFrame, KeyBindingTaken, MouseAndWSADTaken)
 
 
 def OptionsFrameInit():
@@ -48,7 +47,7 @@ def OptionsFrameInit():
 
 
 def SelectFrameInit():
-    SelectFrame = bs.Frame(GUI, width=640, height=50)
+    SelectFrame = bs.Frame(GUIFrame, width=640, height=50)
     SelectFrame.pack(side=TOP)
     EyeCalibrationButton = bs.Radiobutton(SelectFrame, text="Eye Calibration", bootstyle="default, toolbutton, outline",
                                           value=0,
@@ -64,14 +63,14 @@ def SelectFrameInit():
     MouseBindButton.grid(column=1, row=0, padx=(5, 5), pady=(5, 5))
     KeyboardBindButton.grid(column=2, row=0, padx=(5, 5), pady=(5, 5))
     OptionsButton.grid(column=3, row=0, padx=(5, 5), pady=(5, 5))
-    LineFrame = bs.Frame(GUI, width=640, height=1, relief="solid")
+    LineFrame = bs.Frame(GUIFrame, width=640, height=1, relief="solid")
     LineFrame.pack(side=TOP)
 
 
 def GUI_Main():
     SelectFrameInit()
     WindowFrame.pack(side=TOP)
-    GUI.mainloop()
+    GUIFrame.mainloop()
 
 
 if __name__ == "__main__":
