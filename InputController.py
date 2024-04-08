@@ -119,7 +119,7 @@ def HeadTrackingForMouse(Landmarks):
 
 
 def HeadTrackingForMovement(Type, Landmarks):
-    print("cocks")
+    print("Test1")
 
 
 def HeadTracking(Type, Landmarks):

@@ -53,7 +53,6 @@ def DetectFaceLandmarks(KeyBindingTaken, MouseAndWSADTaken):
     global KeyBindMapping, MouseAndWSADMapping
     KeyBindMapping = KeyBindingTaken
     MouseAndWSADMapping = MouseAndWSADTaken
-    print(KeyBindMapping)
     with FaceLandmarker.create_from_options(options) as landmarker:
         while flag:
             ms = time.time() * 1000
