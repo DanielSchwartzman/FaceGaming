@@ -4,6 +4,11 @@ import keyboard
 import math
 
 ACCEPTABLE_MOUTH_SCORE = 200
+ACCEPTABLE_FACE_ORIENTATION_SCORE = 200
+ACCEPTABLE_FACE_RIGHT_ORIENTATION_SCORE = 800
+ACCEPTABLE_EYE_WIDE_SCORE = 35
+ACCEPTABLE_BROWS_SCORE = 300
+ACCEPTABLE_MOUTH_OPEN_SCORE = 1
 
 InputFlagArray = [False, False, False, False, False, False, False]
 
@@ -24,17 +29,39 @@ def SendInputToPC(Key, ToPress):
                 win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTDOWN, 0, 0)
             else:
                 win32api.mouse_event(win32con.MOUSEEVENTF_RIGHTUP, 0, 0)
-        # case 3:
+        case 3:
+            if ToPress:
+                keyboard.press("space")
+            else:
+                keyboard.release("space")
+        case 4:
+            if ToPress:
+                keyboard.press("ctrl")
+            else:
+                keyboard.release("ctrl")
+        case 5:
+            if ToPress:
+                keyboard.press("e")
+            else:
+                keyboard.release("e")
 
-        # case 4:
 
-        # case 5:
+def FaceLeft(Key, Score):
+    if Score >= ACCEPTABLE_FACE_ORIENTATION_SCORE and InputFlagArray[0] == False:
+        SendInputToPC(Key, True)
+        InputFlagArray[0] = True
+    elif Score < ACCEPTABLE_FACE_ORIENTATION_SCORE and InputFlagArray[0] == True:
+        SendInputToPC(Key, False)
+        InputFlagArray[0] = False
 
 
-# def FaceLeft():
-
-
-# def FaceRight():
+def FaceRight(Key, Score):
+    if Score >= ACCEPTABLE_FACE_RIGHT_ORIENTATION_SCORE and InputFlagArray[1] == False:
+        SendInputToPC(Key, True)
+        InputFlagArray[1] = True
+    elif Score < ACCEPTABLE_FACE_RIGHT_ORIENTATION_SCORE and InputFlagArray[1] == True:
+        SendInputToPC(Key, False)
+        InputFlagArray[1] = False
 
 
 def MouthLeft(Key, Score):
@@ -47,7 +74,6 @@ def MouthLeft(Key, Score):
 
 
 def MouthRight(Key, Score):
-    print(Score)
     if Score >= ACCEPTABLE_MOUTH_SCORE and InputFlagArray[3] == False:
         SendInputToPC(Key, True)
         InputFlagArray[3] = True
@@ -56,32 +82,50 @@ def MouthRight(Key, Score):
         InputFlagArray[3] = False
 
 
-# def MouthOpen():
+def MouthOpen(Key, Score):
+    print(Score)
+    if Score >= ACCEPTABLE_MOUTH_OPEN_SCORE and InputFlagArray[4] == False:
+        SendInputToPC(Key, True)
+        InputFlagArray[4] = True
+    elif Score < ACCEPTABLE_MOUTH_OPEN_SCORE and InputFlagArray[4] == True:
+        SendInputToPC(Key, False)
+        InputFlagArray[4] = False
 
-# def EyeWide():
 
-# def BrowsUp():
+def EyeWide(Key, Score):
+    if Score >= ACCEPTABLE_EYE_WIDE_SCORE and InputFlagArray[5] == False:
+        SendInputToPC(Key, True)
+        InputFlagArray[5] = True
+    elif Score < ACCEPTABLE_EYE_WIDE_SCORE and InputFlagArray[5] == True:
+        SendInputToPC(Key, False)
+        InputFlagArray[5] = False
 
-def HeadTracking(Type, Landmarks):
+
+def BrowsUp(Key, Score):
+    if Score >= ACCEPTABLE_BROWS_SCORE and InputFlagArray[6] == False:
+        SendInputToPC(Key, True)
+        InputFlagArray[6] = True
+    elif Score < ACCEPTABLE_BROWS_SCORE and InputFlagArray[6] == True:
+        SendInputToPC(Key, False)
+        InputFlagArray[6] = False
+
+
+def HeadTrackingForMouse(Landmarks):
     faceCenterX = (Landmarks[123].x + Landmarks[352].x) / 2
     faceCenterY = (Landmarks[152].y + Landmarks[10].y) / 2
 
     xDiff = (faceCenterX - Landmarks[4].x) * 1000
     yDiff = -(faceCenterY - Landmarks[4].y) * 1000
 
-    if abs(yDiff) > 25:
-        keyboard.press('shift')
-    else:
-        keyboard.release('shift')
 
-    if abs(yDiff) < 15:
-        keyboard.release('w')
-        keyboard.release('s')
-    elif yDiff < 0:
-        keyboard.press('s')
-        keyboard.release('w')
-    elif yDiff > 0:
-        keyboard.press('w')
-        keyboard.release('s')
+def HeadTrackingForMovement(Type, Landmarks):
+    print("cocks")
+
+
+def HeadTracking(Type, Landmarks):
+    if Type == 3:
+        HeadTrackingForMouse(Landmarks)
+    else:
+        HeadTrackingForMovement(Type,Landmarks)
 
 # def EyeTracking():
