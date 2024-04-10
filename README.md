@@ -15,7 +15,7 @@ now that the Python is installed, open CMD and run the following commands:
 * python -m pip install opencv-python 
 * python -m pip install mediapipe
 * python -m pip install keyboard
-* python -m pip install pywin
+* python -m pip install pywin32
 * python -m pip install msvc-runtime
 
 You're all set, ensure you got a camera connected to your system and launch FaceGaming.py
