@@ -2,6 +2,7 @@ import win32api
 import win32con
 import keyboard
 import math
+import time
 
 ACCEPTABLE_MOUTH_SCORE = 200
 ACCEPTABLE_FACE_ORIENTATION_SCORE = 200
@@ -12,6 +13,7 @@ ACCEPTABLE_MOUTH_OPEN_SCORE = 1
 
 InputFlagArray = [False, False, False, False, False, False, False]
 
+flag = 0
 
 def Distance(firstX, firstY, secondX, secondY):
     return math.sqrt(math.pow(firstX - secondX, 2) + math.pow(firstY - secondY, 2)) * 1000
@@ -83,7 +85,7 @@ def MouthRight(Key, Score):
 
 
 def MouthOpen(Key, Score):
-    print(Score)
+    print(Key)
     if Score >= ACCEPTABLE_MOUTH_OPEN_SCORE and InputFlagArray[4] == False:
         SendInputToPC(Key, True)
         InputFlagArray[4] = True
@@ -117,6 +119,27 @@ def HeadTrackingForMouse(Landmarks):
     xDiff = (faceCenterX - Landmarks[4].x) * 1000
     yDiff = -(faceCenterY - Landmarks[4].y) * 1000
 
+    i = 0
+    if abs(xDiff) >= 8:
+        if xDiff >= 0:
+            while i < xDiff:
+                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 1, 0)
+                i += 1
+        else:
+            while i > xDiff:
+                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, -1, 0)
+                i -= 1
+    j = 0
+    if abs(yDiff) >= 8:
+        if yDiff >= 0:
+            while j < yDiff:
+                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, 1)
+                j += 1
+        else:
+            while j > yDiff:
+                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, -1)
+                j -= 1
+
 
 def HeadTrackingForMovement(Type, Landmarks):
     print("Test1")
@@ -126,6 +149,6 @@ def HeadTracking(Type, Landmarks):
     if Type == 3:
         HeadTrackingForMouse(Landmarks)
     else:
-        HeadTrackingForMovement(Type,Landmarks)
+        HeadTrackingForMovement(Type, Landmarks)
 
 # def EyeTracking():

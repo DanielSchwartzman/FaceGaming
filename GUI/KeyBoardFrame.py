@@ -43,7 +43,7 @@ def InteractSelect(ComboBox, KeyBindingTaken):
     else:
         KeyBindingTaken[Interact] = 0
         Interact = ComboBox.current()
-        KeyBindingTaken[ComboBox.current()] = 3
+        KeyBindingTaken[ComboBox.current()] = 5
     return 'break'
 
 
@@ -67,7 +67,7 @@ def SpaceSelect(ComboBox, KeyBindingTaken):
     else:
         KeyBindingTaken[Space] = 0
         Space = ComboBox.current()
-        KeyBindingTaken[ComboBox.current()] = 5
+        KeyBindingTaken[ComboBox.current()] = 3
     return 'break'
 
 
