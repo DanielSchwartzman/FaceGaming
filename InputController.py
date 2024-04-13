@@ -15,6 +15,7 @@ InputFlagArray = [False, False, False, False, False, False, False]
 
 flag = 0
 
+
 def Distance(firstX, firstY, secondX, secondY):
     return math.sqrt(math.pow(firstX - secondX, 2) + math.pow(firstY - secondY, 2)) * 1000
 
@@ -85,7 +86,6 @@ def MouthRight(Key, Score):
 
 
 def MouthOpen(Key, Score):
-    print(Key)
     if Score >= ACCEPTABLE_MOUTH_OPEN_SCORE and InputFlagArray[4] == False:
         SendInputToPC(Key, True)
         InputFlagArray[4] = True
@@ -116,33 +116,62 @@ def HeadTrackingForMouse(Landmarks):
     faceCenterX = (Landmarks[123].x + Landmarks[352].x) / 2
     faceCenterY = (Landmarks[152].y + Landmarks[10].y) / 2
 
-    xDiff = (faceCenterX - Landmarks[4].x) * 1000
-    yDiff = -(faceCenterY - Landmarks[4].y) * 1000
+    xDiff = int((faceCenterX - Landmarks[4].x) * 1000)
+    yDiff = -int((faceCenterY - Landmarks[4].y) * 1000)
+
+    if xDiff > 0:
+        xChange = 1
+    else:
+        xChange = -1
+
+    if yDiff > 0:
+        yChange = 1
+    else:
+        yChange = -1
 
     i = 0
-    if abs(xDiff) >= 8:
-        if xDiff >= 0:
-            while i < xDiff:
-                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 1, 0)
-                i += 1
-        else:
-            while i > xDiff:
-                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, -1, 0)
-                i -= 1
     j = 0
-    if abs(yDiff) >= 8:
-        if yDiff >= 0:
-            while j < yDiff:
-                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, 1)
-                j += 1
-        else:
-            while j > yDiff:
-                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, -1)
-                j -= 1
+    if abs(xDiff) >= 8 or abs(yDiff) >= 8:
+        while i != xDiff or j != yDiff:
+            if i != xDiff:
+                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, xChange, 0)
+                i += xChange
+            if j != yDiff:
+                win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, yChange)
+                j += yChange
+            time.sleep(0.0002)
 
 
 def HeadTrackingForMovement(Type, Landmarks):
-    print("Test1")
+    faceCenterY = (Landmarks[152].y + Landmarks[10].y) / 2
+    yDiff = -int((faceCenterY - Landmarks[4].y) * 1000)
+
+    tilt = int((Landmarks[10].x - Landmarks[152].x) * 1000)
+    print(Type)
+
+    if abs(yDiff) >= 8:
+        if yDiff >= 0:
+            if Type == 1:
+                keyboard.press('s')
+            else:
+                keyboard.press('w')
+        else:
+            if Type == 1:
+                keyboard.press('w')
+            else:
+                keyboard.press('s')
+    else:
+        keyboard.release('w')
+        keyboard.release('s')
+
+    if abs(tilt) >= 50:
+        if tilt >= 0:
+            keyboard.press('a')
+        else:
+            keyboard.press('d')
+    else:
+        keyboard.release('a')
+        keyboard.release('d')
 
 
 def HeadTracking(Type, Landmarks):
