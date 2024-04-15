@@ -5,8 +5,6 @@ import math
 import time
 
 ACCEPTABLE_MOUTH_SCORE = 200
-ACCEPTABLE_FACE_ORIENTATION_SCORE = 200
-ACCEPTABLE_FACE_RIGHT_ORIENTATION_SCORE = 800
 ACCEPTABLE_EYE_WIDE_SCORE = 35
 ACCEPTABLE_BROWS_SCORE = 300
 ACCEPTABLE_MOUTH_OPEN_SCORE = 1
@@ -49,20 +47,26 @@ def SendInputToPC(Key, ToPress):
                 keyboard.release("e")
 
 
-def FaceLeft(Key, Score):
-    if Score >= ACCEPTABLE_FACE_ORIENTATION_SCORE and InputFlagArray[0] == False:
+def FaceLeft(Key, Landmarks):
+    faceCenterX = (Landmarks[123].x + Landmarks[352].x) / 2
+    xDiff = int((faceCenterX - Landmarks[4].x) * 1000)
+
+    if xDiff <= 0 and abs(xDiff) >= 10 and InputFlagArray[0] == False:
         SendInputToPC(Key, True)
         InputFlagArray[0] = True
-    elif Score < ACCEPTABLE_FACE_ORIENTATION_SCORE and InputFlagArray[0] == True:
+    elif xDiff <= 0 and abs(xDiff) <= 10 and InputFlagArray[0] == True:
         SendInputToPC(Key, False)
         InputFlagArray[0] = False
 
 
-def FaceRight(Key, Score):
-    if Score >= ACCEPTABLE_FACE_RIGHT_ORIENTATION_SCORE and InputFlagArray[1] == False:
+def FaceRight(Key, Landmarks):
+    faceCenterX = (Landmarks[123].x + Landmarks[352].x) / 2
+    xDiff = int((faceCenterX - Landmarks[4].x) * 1000)
+
+    if xDiff >= 0 and abs(xDiff) >= 10 and InputFlagArray[1] == False:
         SendInputToPC(Key, True)
         InputFlagArray[1] = True
-    elif Score < ACCEPTABLE_FACE_RIGHT_ORIENTATION_SCORE and InputFlagArray[1] == True:
+    elif xDiff >= 0 and abs(xDiff) <= 10 and InputFlagArray[1] == True:
         SendInputToPC(Key, False)
         InputFlagArray[1] = False
 
@@ -180,4 +184,7 @@ def HeadTracking(Type, Landmarks):
     else:
         HeadTrackingForMovement(Type, Landmarks)
 
-# def EyeTracking():
+
+def EyeTracking(Landmarks):
+    if keyboard.is_pressed('e'):
+        print(Landmarks[468].x * 100000, ((Landmarks[55].x + Landmarks[46].x) / 2) * 100000)

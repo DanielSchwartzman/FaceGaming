@@ -23,9 +23,9 @@ MouseAndWSADMapping = []
 def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
     if len(result.face_landmarks) >= 1:
         if KeyBindMapping[1] != 0:
-            InputController.FaceLeft(KeyBindMapping[1], result.face_blendshapes[0][13].score * 1000)
+            InputController.FaceLeft(KeyBindMapping[1], result.face_landmarks[0])
         if KeyBindMapping[2] != 0:
-            InputController.FaceRight(KeyBindMapping[2], result.face_blendshapes[0][14].score * 1000)
+            InputController.FaceRight(KeyBindMapping[2], result.face_landmarks[0])
         if KeyBindMapping[3] != 0:
             InputController.MouthLeft(KeyBindMapping[3], result.face_blendshapes[0][33].score * 1000)
         if KeyBindMapping[4] != 0:
@@ -34,13 +34,14 @@ def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timest
             InputController.MouthOpen(KeyBindMapping[5], result.face_blendshapes[0][27].score * 1000)
         if KeyBindMapping[6] != 0:
             InputController.EyeWide(KeyBindMapping[6],
-                                (result.face_blendshapes[0][21].score + result.face_blendshapes[0][22].score) * 1000)
+                                    (result.face_blendshapes[0][21].score + result.face_blendshapes[0][
+                                        22].score) * 1000)
         if KeyBindMapping[7] != 0:
             InputController.BrowsUp(KeyBindMapping[7], result.face_blendshapes[0][3].score * 1000)
         if MouseAndWSADMapping[0] != 0:
             InputController.HeadTracking(MouseAndWSADMapping[0], result.face_landmarks[0])
-    # if MouseAndWSADMapping[1] != 0:
-    # InputController.EyeTracking()
+        if MouseAndWSADMapping[1] != 0:
+            InputController.EyeTracking(result.face_landmarks[0])
 
 
 options = FaceLandmarkerOptions(
