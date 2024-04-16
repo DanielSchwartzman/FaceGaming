@@ -186,5 +186,20 @@ def HeadTracking(Type, Landmarks):
 
 
 def EyeTracking(Landmarks):
-    if keyboard.is_pressed('e'):
-        print(Landmarks[468].x * 100000, ((Landmarks[55].x + Landmarks[46].x) / 2) * 100000)
+    lx = int((Landmarks[130].x * 640) * 1000)
+    ly = int((Landmarks[130].y * 480) * 1000)
+
+    rx = int((Landmarks[133].x * 640) * 1000)
+    ry = int((Landmarks[133].y * 480) * 1000)
+
+    mx = int((Landmarks[468].x * 640) * 1000)
+    my = int((Landmarks[468].y * 480) * 1000)
+
+    distLeft = abs(lx - mx)
+    distRight = abs(rx - mx)
+
+    if abs(distLeft - distRight) >= 2000:
+        if distLeft > distRight:
+            win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, -10, 0)
+        else:
+            win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 10, 0)
