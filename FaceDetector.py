@@ -19,8 +19,16 @@ flag = True
 KeyBindMapping = []
 MouseAndWSADMapping = []
 
+ux = 0
+uy = 0
+bx = 0
+by = 0
+mx = 0
+my = 0
+
 
 def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
+    global ux, uy, bx, by, mx, my
     if len(result.face_landmarks) >= 1:
         if KeyBindMapping[1] != 0:
             InputController.FaceLeft(KeyBindMapping[1], result.face_landmarks[0])
@@ -63,6 +71,9 @@ def DetectFaceLandmarks(KeyBindingTaken, MouseAndWSADTaken):
             if ret:
                 mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
                 landmarker.detect_async(mp_image, int(ms))
+                cv2.circle(frame, (ux, uy), 1, (255, 0, 0), 2)
+                cv2.circle(frame, (bx, by), 1, (255, 0, 0), 2)
+                cv2.circle(frame, (mx, my), 1, (255, 0, 0), 2)
                 cv2.imshow("FaceGaming", frame)
             key = cv2.waitKey(1)
             if key == ord('q'):

@@ -185,21 +185,38 @@ def HeadTracking(Type, Landmarks):
         HeadTrackingForMovement(Type, Landmarks)
 
 
-def EyeTracking(Landmarks):
-    lx = int((Landmarks[130].x * 640) * 1000)
-    ly = int((Landmarks[130].y * 480) * 1000)
+distUpThresh = 0
+distDownThresh = 0
 
+
+def EyeTracking(Landmarks):
+    global distUpThresh, distDownThresh
+    lx = int((Landmarks[130].x * 640) * 1000)
     rx = int((Landmarks[133].x * 640) * 1000)
-    ry = int((Landmarks[133].y * 480) * 1000)
+    uy = int((Landmarks[104].y * 480) * 1000)
+    by = int((Landmarks[230].y * 480) * 1000)
 
     mx = int((Landmarks[468].x * 640) * 1000)
-    my = int((Landmarks[468].y * 480) * 1000)
+    my = int((Landmarks[159].y * 480) * 1000)
 
     distLeft = abs(lx - mx)
     distRight = abs(rx - mx)
 
-    if abs(distLeft - distRight) >= 2000:
+    distUp = abs(uy - my)
+    distDown = abs(by - my)
+
+    if keyboard.is_pressed('e'):
+        distUpThresh = distUp
+    if keyboard.is_pressed('r'):
+        distDownThresh = distDown
+
+    if abs(distLeft - distRight) >= 100000:
         if distLeft > distRight:
             win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, -10, 0)
         else:
             win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 10, 0)
+    if abs(distUp - distDown) >= 400:
+        if distUp <= distUpThresh:
+            win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, -10)
+        elif distDown >= distDownThresh != 0:
+            win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, 10)
