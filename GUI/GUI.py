@@ -4,6 +4,9 @@ import OptionsFrame
 import EyeCalibrationFrame
 import KeyBoardFrame
 import MouseBindFrame
+from multiprocessing import shared_memory
+
+shared_mem = shared_memory.SharedMemory(name="KeyBindingMapping", size=11, create=False)
 
 GUIFrame = bs.Window(themename="cerculean")
 GUIFrame.title("FaceGaming")
@@ -12,13 +15,6 @@ GUIFrame.geometry("480x320")
 GUIFrame.iconbitmap("res/Icons/FaceGamingIcon.ico")
 
 WindowFrame = bs.Frame(GUIFrame, width=640, height=700)
-
-KeyBindingTaken = [0, 0, 0, 0, 0, 0, 0, 0]
-MouseAndWSADTaken = [0, 0]
-
-MouseMovement = 0
-LeftClick = 0
-RightClick = 0
 
 
 def DestroyPreviousFrame():
@@ -33,12 +29,12 @@ def EyeCalibrationFrameInit():
 
 def MouseBindFrameInit():
     DestroyPreviousFrame()
-    MouseBindFrame.MouseBindFrameInit(WindowFrame, KeyBindingTaken, MouseAndWSADTaken)
+    MouseBindFrame.MouseBindFrameInit(WindowFrame)
 
 
 def KeyboardFrameInit():
     DestroyPreviousFrame()
-    KeyBoardFrame.KeyboardFrameInit(WindowFrame, KeyBindingTaken, MouseAndWSADTaken)
+    KeyBoardFrame.KeyboardFrameInit(WindowFrame)
 
 
 def OptionsFrameInit():
@@ -68,6 +64,7 @@ def SelectFrameInit():
 
 
 def GUI_Main():
+    global shared_mem
     SelectFrameInit()
     WindowFrame.pack(side=TOP)
     GUIFrame.mainloop()
