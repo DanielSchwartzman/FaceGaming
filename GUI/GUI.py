@@ -151,7 +151,7 @@ class Ui_MainWindow(object):
         self.IMG_ActivationBanner_2.setScaledContents(True)
         self.IMG_ActivationBanner_2.setObjectName("IMG_ActivationBanner_2")
         self.LBL_ActivationText = QtWidgets.QLabel(parent=self.tab)
-        self.LBL_ActivationText.setGeometry(QtCore.QRect(20, 290, 391, 16))
+        self.LBL_ActivationText.setGeometry(QtCore.QRect(20, 290, 391, 20))
         font = QtGui.QFont()
         font.setFamily("Poppins SemiBold")
         font.setPointSize(12)
@@ -248,7 +248,7 @@ class Ui_MainWindow(object):
         self.IMG_ActivationBanner.setScaledContents(True)
         self.IMG_ActivationBanner.setObjectName("IMG_ActivationBanner")
         self.LBL_ActivationText_2 = QtWidgets.QLabel(parent=self.tab_2)
-        self.LBL_ActivationText_2.setGeometry(QtCore.QRect(20, 290, 391, 16))
+        self.LBL_ActivationText_2.setGeometry(QtCore.QRect(20, 290, 391, 20))
         font = QtGui.QFont()
         font.setFamily("Poppins SemiBold")
         font.setPointSize(12)
@@ -309,30 +309,32 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def MovementSelect(self):
-        if shared_mem.buf[8] == 3 and 2 >= self.CB_MovemetMethod.currentIndex() >= 1:
-            self.CB_Interact.setCurrentIndex(self.WASD)
-            return
-        if self.CB_MovemetMethod.currentIndex() == 0 and 2 >= self.WASD >= 1:
-            shared_mem.buf[8] = 0
-        shared_mem.buf[8] = self.CB_MovemetMethod.currentIndex()
-        self.WASD = self.CB_MovemetMethod.currentIndex()
+        if shared_mem.buf[8] > 0 and self.WASD == 0:
+            self.CB_MovemetMethod.setCurrentIndex(self.WASD)
+        else:
+            if self.WASD != 0 and self.CB_MovemetMethod.currentIndex() == 0:
+                shared_mem.buf[8] = 0
+                self.WASD = 0
+            else:
+                shared_mem.buf[8] = self.CB_MovemetMethod.currentIndex()
+                self.WASD = self.CB_MovemetMethod.currentIndex()
 
     def MouseSelect(self):
-        if 2 >= shared_mem.buf[8] >= 1 == self.CB_MouseMethod.currentIndex():
-            self.CB_MouseMethod.setCurrentIndex(self.Mouse)
-            return
         if self.CB_MouseMethod.currentIndex() == 1:
-            shared_mem.buf[8] = 3
-            shared_mem.buf[9] = 0
-        elif self.CB_MouseMethod.currentIndex() == 2:
-            shared_mem.buf[9] = 1
-            shared_mem.buf[8] = 0
+            if shared_mem.buf[8] > 0:
+                self.CB_MouseMethod.setCurrentIndex(self.Mouse)
+            else:
+                shared_mem.buf[8] = 3
+                self.Mouse = self.CB_MouseMethod.currentIndex()
         else:
-            shared_mem.buf[8] = 0
-        self.Mouse = self.CB_MovemetMethod.currentIndex()
+            if self.Mouse == 1:
+                shared_mem.buf[8] = 0
+            shared_mem.buf[9] = 1
+            self.Mouse = self.CB_MouseMethod.currentIndex()
 
     def InteractSelect(self):
-        if shared_mem.buf[self.CB_Interact.currentIndex()] > 0 and self.CB_Interact.currentIndex() != self.Interact:
+        if shared_mem.buf[
+            self.CB_Interact.currentIndex()] > 0 and self.CB_Interact.currentIndex() != self.Interact and self.CB_Interact.currentIndex() != 0:
             self.CB_Interact.setCurrentIndex(self.Interact)
             return
         if self.CB_Interact.currentIndex() != self.Interact:
@@ -341,7 +343,8 @@ class Ui_MainWindow(object):
         self.Interact = self.CB_Interact.currentIndex()
 
     def CtrlSelect(self):
-        if shared_mem.buf[self.CB_Ctrl.currentIndex()] > 0 and self.CB_Ctrl.currentIndex() != self.Ctrl:
+        if shared_mem.buf[
+            self.CB_Ctrl.currentIndex()] > 0 and self.CB_Ctrl.currentIndex() != self.Ctrl and self.CB_Ctrl.currentIndex() != 0:
             self.CB_Ctrl.setCurrentIndex(self.Ctrl)
             return
         if self.CB_Ctrl.currentIndex() != self.Ctrl:
@@ -350,7 +353,8 @@ class Ui_MainWindow(object):
         self.Ctrl = self.CB_Ctrl.currentIndex()
 
     def SpaceSelect(self):
-        if shared_mem.buf[self.CB_Spacebar.currentIndex()] > 0 and self.CB_Spacebar.currentIndex() != self.Space:
+        if shared_mem.buf[
+            self.CB_Spacebar.currentIndex()] > 0 and self.CB_Spacebar.currentIndex() != self.Space and self.CB_Spacebar.currentIndex() != 0:
             self.CB_Spacebar.setCurrentIndex(self.Space)
             return
         if self.CB_Spacebar.currentIndex() != self.Space:
@@ -359,7 +363,8 @@ class Ui_MainWindow(object):
         self.Space = self.CB_Spacebar.currentIndex()
 
     def LeftClickSelect(self):
-        if shared_mem.buf[self.CB_LeftClick.currentIndex()] > 0 and self.CB_LeftClick.currentIndex() != self.LeftClick:
+        if shared_mem.buf[
+            self.CB_LeftClick.currentIndex()] > 0 and self.CB_LeftClick.currentIndex() != self.LeftClick and self.CB_LeftClick.currentIndex() != 0:
             self.CB_LeftClick.setCurrentIndex(self.LeftClick)
             return
         shared_mem.buf[self.CB_LeftClick.currentIndex()] = 1
@@ -368,7 +373,8 @@ class Ui_MainWindow(object):
         self.LeftClick = self.CB_LeftClick.currentIndex()
 
     def RightClickSelect(self):
-        if shared_mem.buf[self.CB_RightClick.currentIndex()] > 0 and self.CB_RightClick.currentIndex() != self.RightClick:
+        if shared_mem.buf[
+            self.CB_RightClick.currentIndex()] > 0 and self.CB_RightClick.currentIndex() != self.RightClick and self.CB_RightClick.currentIndex() != 0:
             self.CB_RightClick.setCurrentIndex(self.RightClick)
             return
         if self.CB_RightClick.currentIndex() != self.RightClick:
