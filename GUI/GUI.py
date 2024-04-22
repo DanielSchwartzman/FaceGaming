@@ -1,74 +1,461 @@
-import ttkbootstrap as bs
-from ttkbootstrap.constants import *
-import OptionsFrame
-import EyeCalibrationFrame
-import KeyBoardFrame
-import MouseBindFrame
+from PyQt6 import QtCore, QtGui, QtWidgets
 from multiprocessing import shared_memory
 
 shared_mem = shared_memory.SharedMemory(name="KeyBindingMapping", size=11, create=False)
 
-GUIFrame = bs.Window(themename="cerculean")
-GUIFrame.title("FaceGaming")
-GUIFrame.resizable(False, False)
-GUIFrame.geometry("480x320")
-GUIFrame.iconbitmap("res/Icons/FaceGamingIcon.ico")
 
-WindowFrame = bs.Frame(GUIFrame, width=640, height=700)
+class Ui_MainWindow(object):
+    Mouse = 0
+    LeftClick = 0
+    RightClick = 0
+    Interact = 0
+    Ctrl = 0
+    Space = 0
+    WASD = 0
 
+    def setupUi(self, MainWindow):
+        MainWindow.setObjectName("MainWindow")
+        MainWindow.resize(450, 450)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(MainWindow.sizePolicy().hasHeightForWidth())
+        MainWindow.setSizePolicy(sizePolicy)
+        MainWindow.setMinimumSize(QtCore.QSize(450, 450))
+        MainWindow.setMaximumSize(QtCore.QSize(450, 450))
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap("./res/Icons/FaceGamingIcon.ico"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        MainWindow.setWindowIcon(icon)
+        self.centralwidget = QtWidgets.QWidget(parent=MainWindow)
+        self.centralwidget.setObjectName("centralwidget")
+        self.tabWidget = QtWidgets.QTabWidget(parent=self.centralwidget)
+        self.tabWidget.setGeometry(QtCore.QRect(0, 70, 500, 400))
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.tabWidget.setFont(font)
+        self.tabWidget.setStyleSheet("QWidget{\n"
+                                     "rgb(29, 255, 67)\n"
+                                     "}")
+        self.tabWidget.setTabShape(QtWidgets.QTabWidget.TabShape.Rounded)
+        self.tabWidget.setElideMode(QtCore.Qt.TextElideMode.ElideLeft)
+        self.tabWidget.setTabBarAutoHide(False)
+        self.tabWidget.setObjectName("tabWidget")
+        self.tab = QtWidgets.QWidget()
+        self.tab.setObjectName("tab")
+        self.formLayoutWidget = QtWidgets.QWidget(parent=self.tab)
+        self.formLayoutWidget.setGeometry(QtCore.QRect(10, 30, 421, 211))
+        self.formLayoutWidget.setObjectName("formLayoutWidget")
+        self.formLayout = QtWidgets.QFormLayout(self.formLayoutWidget)
+        self.formLayout.setContentsMargins(0, 0, 0, 0)
+        self.formLayout.setSpacing(20)
+        self.formLayout.setObjectName("formLayout")
+        self.LBL_MovemetMethod = QtWidgets.QLabel(parent=self.formLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.LBL_MovemetMethod.setFont(font)
+        self.LBL_MovemetMethod.setObjectName("LBL_MovemetMethod")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.ItemRole.LabelRole, self.LBL_MovemetMethod)
+        self.CB_MovemetMethod = QtWidgets.QComboBox(parent=self.formLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.CB_MovemetMethod.setFont(font)
+        self.CB_MovemetMethod.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.ArrowCursor))
+        self.CB_MovemetMethod.setPlaceholderText("")
+        self.CB_MovemetMethod.setObjectName("CB_MovemetMethod")
+        self.CB_MovemetMethod.addItem("")
+        self.CB_MovemetMethod.addItem("")
+        self.CB_MovemetMethod.addItem("")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.ItemRole.FieldRole, self.CB_MovemetMethod)
+        self.LBL_Spacebar = QtWidgets.QLabel(parent=self.formLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.LBL_Spacebar.setFont(font)
+        self.LBL_Spacebar.setObjectName("LBL_Spacebar")
+        self.formLayout.setWidget(1, QtWidgets.QFormLayout.ItemRole.LabelRole, self.LBL_Spacebar)
+        self.CB_Spacebar = QtWidgets.QComboBox(parent=self.formLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.CB_Spacebar.setFont(font)
+        self.CB_Spacebar.setObjectName("CB_Spacebar")
+        self.CB_Spacebar.addItem("")
+        self.CB_Spacebar.addItem("")
+        self.CB_Spacebar.addItem("")
+        self.CB_Spacebar.addItem("")
+        self.CB_Spacebar.addItem("")
+        self.CB_Spacebar.addItem("")
+        self.CB_Spacebar.addItem("")
+        self.CB_Spacebar.addItem("")
+        self.formLayout.setWidget(1, QtWidgets.QFormLayout.ItemRole.FieldRole, self.CB_Spacebar)
+        self.LBL_Control = QtWidgets.QLabel(parent=self.formLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.LBL_Control.setFont(font)
+        self.LBL_Control.setObjectName("LBL_Control")
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.ItemRole.LabelRole, self.LBL_Control)
+        self.LBL_Interact = QtWidgets.QLabel(parent=self.formLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.LBL_Interact.setFont(font)
+        self.LBL_Interact.setObjectName("LBL_Interact")
+        self.formLayout.setWidget(3, QtWidgets.QFormLayout.ItemRole.LabelRole, self.LBL_Interact)
+        self.CB_Ctrl = QtWidgets.QComboBox(parent=self.formLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.CB_Ctrl.setFont(font)
+        self.CB_Ctrl.setObjectName("CB_Ctrl")
+        self.CB_Ctrl.addItem("")
+        self.CB_Ctrl.addItem("")
+        self.CB_Ctrl.addItem("")
+        self.CB_Ctrl.addItem("")
+        self.CB_Ctrl.addItem("")
+        self.CB_Ctrl.addItem("")
+        self.CB_Ctrl.addItem("")
+        self.CB_Ctrl.addItem("")
+        self.formLayout.setWidget(2, QtWidgets.QFormLayout.ItemRole.FieldRole, self.CB_Ctrl)
+        self.CB_Interact = QtWidgets.QComboBox(parent=self.formLayoutWidget)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.CB_Interact.setFont(font)
+        self.CB_Interact.setObjectName("CB_Interact")
+        self.CB_Interact.addItem("")
+        self.CB_Interact.addItem("")
+        self.CB_Interact.addItem("")
+        self.CB_Interact.addItem("")
+        self.CB_Interact.addItem("")
+        self.CB_Interact.addItem("")
+        self.CB_Interact.addItem("")
+        self.CB_Interact.addItem("")
+        self.formLayout.setWidget(3, QtWidgets.QFormLayout.ItemRole.FieldRole, self.CB_Interact)
+        self.IMG_ActivationBanner_2 = QtWidgets.QLabel(parent=self.tab)
+        self.IMG_ActivationBanner_2.setGeometry(QtCore.QRect(10, 280, 421, 41))
+        self.IMG_ActivationBanner_2.setText("")
+        self.IMG_ActivationBanner_2.setPixmap(QtGui.QPixmap("./res/Icons/ActivationBanner.png"))
+        self.IMG_ActivationBanner_2.setScaledContents(True)
+        self.IMG_ActivationBanner_2.setObjectName("IMG_ActivationBanner_2")
+        self.LBL_ActivationText = QtWidgets.QLabel(parent=self.tab)
+        self.LBL_ActivationText.setGeometry(QtCore.QRect(20, 290, 391, 16))
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.LBL_ActivationText.setFont(font)
+        self.LBL_ActivationText.setObjectName("LBL_ActivationText")
+        self.tabWidget.addTab(self.tab, "")
+        self.tab_2 = QtWidgets.QWidget()
+        self.tab_2.setEnabled(True)
+        self.tab_2.setAutoFillBackground(False)
+        self.tab_2.setObjectName("tab_2")
+        self.formLayoutWidget_2 = QtWidgets.QWidget(parent=self.tab_2)
+        self.formLayoutWidget_2.setGeometry(QtCore.QRect(10, 30, 421, 211))
+        self.formLayoutWidget_2.setObjectName("formLayoutWidget_2")
+        self.formLayout_2 = QtWidgets.QFormLayout(self.formLayoutWidget_2)
+        self.formLayout_2.setContentsMargins(0, 0, 0, 0)
+        self.formLayout_2.setSpacing(20)
+        self.formLayout_2.setObjectName("formLayout_2")
+        self.LBL_MouseMethod = QtWidgets.QLabel(parent=self.formLayoutWidget_2)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.LBL_MouseMethod.setFont(font)
+        self.LBL_MouseMethod.setStyleSheet(
+            "QLabel{\\nqlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 rgba(0, 0, 0, 255), stop:0.33 rgba(0, 0, 0, 255), stop:0.34 rgba(255, 30, 30, 255), stop:0.66 rgba(255, 0, 0, 255), stop:0.67 rgba(255, 255, 0, 255), stop:1 rgba(255, 255, 0, 255))\\n}")
+        self.LBL_MouseMethod.setObjectName("LBL_MouseMethod")
+        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.ItemRole.LabelRole, self.LBL_MouseMethod)
+        self.CB_MouseMethod = QtWidgets.QComboBox(parent=self.formLayoutWidget_2)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.CB_MouseMethod.setFont(font)
+        self.CB_MouseMethod.setPlaceholderText("")
+        self.CB_MouseMethod.setObjectName("CB_MouseMethod")
+        self.CB_MouseMethod.addItem("")
+        self.CB_MouseMethod.addItem("")
+        self.CB_MouseMethod.addItem("")
+        self.formLayout_2.setWidget(0, QtWidgets.QFormLayout.ItemRole.FieldRole, self.CB_MouseMethod)
+        self.LBL_LeftClick = QtWidgets.QLabel(parent=self.formLayoutWidget_2)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.LBL_LeftClick.setFont(font)
+        self.LBL_LeftClick.setObjectName("LBL_LeftClick")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.ItemRole.LabelRole, self.LBL_LeftClick)
+        self.CB_LeftClick = QtWidgets.QComboBox(parent=self.formLayoutWidget_2)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.CB_LeftClick.setFont(font)
+        self.CB_LeftClick.setObjectName("CB_LeftClick")
+        self.CB_LeftClick.addItem("")
+        self.CB_LeftClick.addItem("")
+        self.CB_LeftClick.addItem("")
+        self.CB_LeftClick.addItem("")
+        self.CB_LeftClick.addItem("")
+        self.CB_LeftClick.addItem("")
+        self.CB_LeftClick.addItem("")
+        self.CB_LeftClick.addItem("")
+        self.formLayout_2.setWidget(1, QtWidgets.QFormLayout.ItemRole.FieldRole, self.CB_LeftClick)
+        self.LBL_RightClick = QtWidgets.QLabel(parent=self.formLayoutWidget_2)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.LBL_RightClick.setFont(font)
+        self.LBL_RightClick.setObjectName("LBL_RightClick")
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.ItemRole.LabelRole, self.LBL_RightClick)
+        self.CB_RightClick = QtWidgets.QComboBox(parent=self.formLayoutWidget_2)
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.CB_RightClick.setFont(font)
+        self.CB_RightClick.setObjectName("CB_RightClick")
+        self.CB_RightClick.addItem("")
+        self.CB_RightClick.addItem("")
+        self.CB_RightClick.addItem("")
+        self.CB_RightClick.addItem("")
+        self.CB_RightClick.addItem("")
+        self.CB_RightClick.addItem("")
+        self.CB_RightClick.addItem("")
+        self.CB_RightClick.addItem("")
+        self.formLayout_2.setWidget(2, QtWidgets.QFormLayout.ItemRole.FieldRole, self.CB_RightClick)
+        self.IMG_ActivationBanner = QtWidgets.QLabel(parent=self.tab_2)
+        self.IMG_ActivationBanner.setGeometry(QtCore.QRect(10, 280, 421, 41))
+        self.IMG_ActivationBanner.setText("")
+        self.IMG_ActivationBanner.setPixmap(QtGui.QPixmap("./res/Icons/ActivationBanner.png"))
+        self.IMG_ActivationBanner.setScaledContents(True)
+        self.IMG_ActivationBanner.setObjectName("IMG_ActivationBanner")
+        self.LBL_ActivationText_2 = QtWidgets.QLabel(parent=self.tab_2)
+        self.LBL_ActivationText_2.setGeometry(QtCore.QRect(20, 290, 391, 16))
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.LBL_ActivationText_2.setFont(font)
+        self.LBL_ActivationText_2.setObjectName("LBL_ActivationText_2")
+        self.tabWidget.addTab(self.tab_2, "")
+        self.Tab3 = QtWidgets.QWidget()
+        self.Tab3.setObjectName("Tab3")
+        self.LBL_SaveSettings = QtWidgets.QLabel(parent=self.Tab3)
+        self.LBL_SaveSettings.setGeometry(QtCore.QRect(10, 20, 81, 25))
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.LBL_SaveSettings.setFont(font)
+        self.LBL_SaveSettings.setObjectName("LBL_SaveSettings")
+        self.LBL_InputDevice = QtWidgets.QLabel(parent=self.Tab3)
+        self.LBL_InputDevice.setGeometry(QtCore.QRect(10, 60, 81, 25))
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.LBL_InputDevice.setFont(font)
+        self.LBL_InputDevice.setObjectName("LBL_InputDevice")
+        self.BTN_SaveSettings = QtWidgets.QPushButton(parent=self.Tab3)
+        self.BTN_SaveSettings.setGeometry(QtCore.QRect(100, 20, 91, 23))
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.BTN_SaveSettings.setFont(font)
+        self.BTN_SaveSettings.setObjectName("BTN_SaveSettings")
+        self.CB_InputDevice = QtWidgets.QComboBox(parent=self.Tab3)
+        self.CB_InputDevice.setGeometry(QtCore.QRect(100, 60, 248, 25))
+        font = QtGui.QFont()
+        font.setFamily("Poppins SemiBold")
+        font.setBold(True)
+        font.setWeight(75)
+        self.CB_InputDevice.setFont(font)
+        self.CB_InputDevice.setCurrentText("")
+        self.CB_InputDevice.setPlaceholderText("")
+        self.CB_InputDevice.setObjectName("CB_InputDevice")
+        self.tabWidget.addTab(self.Tab3, "")
+        self.LogoPlaceholder = QtWidgets.QLabel(parent=self.centralwidget)
+        self.LogoPlaceholder.setGeometry(QtCore.QRect(100, 10, 251, 61))
+        self.LogoPlaceholder.setText("")
+        self.LogoPlaceholder.setPixmap(QtGui.QPixmap("./res/Icons/FaceGamingDisplayLogo.png"))
+        self.LogoPlaceholder.setObjectName("LogoPlaceholder")
+        MainWindow.setCentralWidget(self.centralwidget)
+        self.statusbar = QtWidgets.QStatusBar(parent=MainWindow)
+        self.statusbar.setObjectName("statusbar")
+        MainWindow.setStatusBar(self.statusbar)
 
-def DestroyPreviousFrame():
-    for frame in WindowFrame.winfo_children():
-        frame.destroy()
+        self.retranslateUi(MainWindow)
+        self.tabWidget.setCurrentIndex(0)
+        QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    def MovementSelect(self):
+        if shared_mem.buf[8] == 3 and 2 >= self.CB_MovemetMethod.currentIndex() >= 1:
+            self.CB_Interact.setCurrentIndex(self.WASD)
+            return
+        if self.CB_MovemetMethod.currentIndex() == 0 and 2 >= self.WASD >= 1:
+            shared_mem.buf[8] = 0
+        shared_mem.buf[8] = self.CB_MovemetMethod.currentIndex()
+        self.WASD = self.CB_MovemetMethod.currentIndex()
 
-def EyeCalibrationFrameInit():
-    DestroyPreviousFrame()
-    EyeCalibrationFrame.EyeCalibrationFrameInit(WindowFrame)
+    def MouseSelect(self):
+        if 2 >= shared_mem.buf[8] >= 1 == self.CB_MouseMethod.currentIndex():
+            self.CB_MouseMethod.setCurrentIndex(self.Mouse)
+            return
+        if self.CB_MouseMethod.currentIndex() == 1:
+            shared_mem.buf[8] = 3
+            shared_mem.buf[9] = 0
+        elif self.CB_MouseMethod.currentIndex() == 2:
+            shared_mem.buf[9] = 1
+            shared_mem.buf[8] = 0
+        else:
+            shared_mem.buf[8] = 0
+        self.Mouse = self.CB_MovemetMethod.currentIndex()
 
+    def InteractSelect(self):
+        if shared_mem.buf[self.CB_Interact.currentIndex()] > 0 and self.CB_Interact.currentIndex() != self.Interact:
+            self.CB_Interact.setCurrentIndex(self.Interact)
+            return
+        if self.CB_Interact.currentIndex() != self.Interact:
+            shared_mem.buf[self.Interact] = 0
+        shared_mem.buf[self.CB_Interact.currentIndex()] = 5
+        self.Interact = self.CB_Interact.currentIndex()
 
-def MouseBindFrameInit():
-    DestroyPreviousFrame()
-    MouseBindFrame.MouseBindFrameInit(WindowFrame)
+    def CtrlSelect(self):
+        if shared_mem.buf[self.CB_Ctrl.currentIndex()] > 0 and self.CB_Ctrl.currentIndex() != self.Ctrl:
+            self.CB_Ctrl.setCurrentIndex(self.Ctrl)
+            return
+        if self.CB_Ctrl.currentIndex() != self.Ctrl:
+            shared_mem.buf[self.Ctrl] = 0
+        shared_mem.buf[self.CB_Ctrl.currentIndex()] = 4
+        self.Ctrl = self.CB_Ctrl.currentIndex()
 
+    def SpaceSelect(self):
+        if shared_mem.buf[self.CB_Spacebar.currentIndex()] > 0 and self.CB_Spacebar.currentIndex() != self.Space:
+            self.CB_Spacebar.setCurrentIndex(self.Space)
+            return
+        if self.CB_Spacebar.currentIndex() != self.Space:
+            shared_mem.buf[self.Space] = 0
+        shared_mem.buf[self.CB_Spacebar.currentIndex()] = 3
+        self.Space = self.CB_Spacebar.currentIndex()
 
-def KeyboardFrameInit():
-    DestroyPreviousFrame()
-    KeyBoardFrame.KeyboardFrameInit(WindowFrame)
+    def LeftClickSelect(self):
+        if shared_mem.buf[self.CB_LeftClick.currentIndex()] > 0 and self.CB_LeftClick.currentIndex() != self.LeftClick:
+            self.CB_LeftClick.setCurrentIndex(self.LeftClick)
+            return
+        shared_mem.buf[self.CB_LeftClick.currentIndex()] = 1
+        if self.CB_LeftClick.currentIndex() != self.LeftClick:
+            shared_mem.buf[self.LeftClick] = 0
+        self.LeftClick = self.CB_LeftClick.currentIndex()
 
+    def RightClickSelect(self):
+        if shared_mem.buf[self.CB_RightClick.currentIndex()] > 0 and self.CB_RightClick.currentIndex() != self.RightClick:
+            self.CB_RightClick.setCurrentIndex(self.RightClick)
+            return
+        if self.CB_RightClick.currentIndex() != self.RightClick:
+            shared_mem.buf[self.RightClick] = 0
+        shared_mem.buf[self.CB_RightClick.currentIndex()] = 2
+        self.RightClick = self.CB_RightClick.currentIndex()
 
-def OptionsFrameInit():
-    DestroyPreviousFrame()
-    OptionsFrame.OptionsFrameInit(WindowFrame)
-
-
-def SelectFrameInit():
-    SelectFrame = bs.Frame(GUIFrame, width=640, height=50)
-    SelectFrame.pack(side=TOP)
-    EyeCalibrationButton = bs.Radiobutton(SelectFrame, text="Eye Calibration", bootstyle="default, toolbutton, outline",
-                                          value=0,
-                                          command=EyeCalibrationFrameInit)
-    MouseBindButton = bs.Radiobutton(SelectFrame, text="Mouse binds", bootstyle="default, toolbutton, outline", value=1,
-                                     command=MouseBindFrameInit)
-    KeyboardBindButton = bs.Radiobutton(SelectFrame, text="Keyboard binds", bootstyle="default, toolbutton, outline",
-                                        value=2,
-                                        command=KeyboardFrameInit)
-    OptionsButton = bs.Radiobutton(SelectFrame, text="Options", bootstyle="default, toolbutton, outline", value=4,
-                                   command=OptionsFrameInit)
-    EyeCalibrationButton.grid(column=0, row=0, padx=(5, 5), pady=(5, 5))
-    MouseBindButton.grid(column=1, row=0, padx=(5, 5), pady=(5, 5))
-    KeyboardBindButton.grid(column=2, row=0, padx=(5, 5), pady=(5, 5))
-    OptionsButton.grid(column=3, row=0, padx=(5, 5), pady=(5, 5))
-    LineFrame = bs.Frame(GUIFrame, width=640, height=1, relief="solid")
-    LineFrame.pack(side=TOP)
+    def retranslateUi(self, MainWindow):
+        _translate = QtCore.QCoreApplication.translate
+        MainWindow.setWindowTitle(_translate("MainWindow", "FaceGaming"))
+        self.LBL_MovemetMethod.setText(_translate("MainWindow", "Movement method (WSAD):"))
+        self.CB_MovemetMethod.setCurrentText(_translate("MainWindow", "Default"))
+        self.CB_MovemetMethod.setItemText(0, _translate("MainWindow", "Default"))
+        self.CB_MovemetMethod.setItemText(1, _translate("MainWindow", "Head Tracking (Forward Up)"))
+        self.CB_MovemetMethod.setItemText(2, _translate("MainWindow", "Head Tracking (Forward Down)"))
+        self.LBL_Spacebar.setText(_translate("MainWindow", "Spacebar Input method:"))
+        self.CB_Spacebar.setItemText(0, _translate("MainWindow", "Default"))
+        self.CB_Spacebar.setItemText(1, _translate("MainWindow", "Face Left"))
+        self.CB_Spacebar.setItemText(2, _translate("MainWindow", "Face Right"))
+        self.CB_Spacebar.setItemText(3, _translate("MainWindow", "Mouth Left"))
+        self.CB_Spacebar.setItemText(4, _translate("MainWindow", "Mouth Right"))
+        self.CB_Spacebar.setItemText(5, _translate("MainWindow", "Mouth Open"))
+        self.CB_Spacebar.setItemText(6, _translate("MainWindow", "Eye Wide"))
+        self.CB_Spacebar.setItemText(7, _translate("MainWindow", "Brows Up"))
+        self.LBL_Control.setText(_translate("MainWindow", "Control (Button) input method:"))
+        self.LBL_Interact.setText(_translate("MainWindow", "Interact (Button) input method:"))
+        self.CB_Ctrl.setItemText(0, _translate("MainWindow", "Default"))
+        self.CB_Ctrl.setItemText(1, _translate("MainWindow", "Face Left"))
+        self.CB_Ctrl.setItemText(2, _translate("MainWindow", "Face Right"))
+        self.CB_Ctrl.setItemText(3, _translate("MainWindow", "Mouth Left"))
+        self.CB_Ctrl.setItemText(4, _translate("MainWindow", "Mouth Right"))
+        self.CB_Ctrl.setItemText(5, _translate("MainWindow", "Mouth Open"))
+        self.CB_Ctrl.setItemText(6, _translate("MainWindow", "Eye Wide"))
+        self.CB_Ctrl.setItemText(7, _translate("MainWindow", "Brows Up"))
+        self.CB_Interact.setItemText(0, _translate("MainWindow", "Default"))
+        self.CB_Interact.setItemText(1, _translate("MainWindow", "Face Left"))
+        self.CB_Interact.setItemText(2, _translate("MainWindow", "Face Right"))
+        self.CB_Interact.setItemText(3, _translate("MainWindow", "Mouth Left"))
+        self.CB_Interact.setItemText(4, _translate("MainWindow", "Mouth Right"))
+        self.CB_Interact.setItemText(5, _translate("MainWindow", "Mouth Open"))
+        self.CB_Interact.setItemText(6, _translate("MainWindow", "Eye Wide"))
+        self.CB_Interact.setItemText(7, _translate("MainWindow", "Brows Up"))
+        self.LBL_ActivationText.setText(_translate("MainWindow", "   To toggle controls : Brows Down + Mouth Open"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Keyboard Configuration"))
+        self.LBL_MouseMethod.setText(_translate("MainWindow", "Mouse Movement method:"))
+        self.CB_MouseMethod.setCurrentText(_translate("MainWindow", "Default"))
+        self.CB_MouseMethod.setItemText(0, _translate("MainWindow", "Default"))
+        self.CB_MouseMethod.setItemText(1, _translate("MainWindow", "Head Tracking"))
+        self.CB_MouseMethod.setItemText(2, _translate("MainWindow", "Eye Tracking"))
+        self.LBL_LeftClick.setText(_translate("MainWindow", "Left Click:"))
+        self.CB_LeftClick.setItemText(0, _translate("MainWindow", "Default"))
+        self.CB_LeftClick.setItemText(1, _translate("MainWindow", "Face Left"))
+        self.CB_LeftClick.setItemText(2, _translate("MainWindow", "Face Right"))
+        self.CB_LeftClick.setItemText(3, _translate("MainWindow", "Mouth Left"))
+        self.CB_LeftClick.setItemText(4, _translate("MainWindow", "Mouth Right"))
+        self.CB_LeftClick.setItemText(5, _translate("MainWindow", "Mouth Open"))
+        self.CB_LeftClick.setItemText(6, _translate("MainWindow", "Eye Wide"))
+        self.CB_LeftClick.setItemText(7, _translate("MainWindow", "Brows Up"))
+        self.LBL_RightClick.setText(_translate("MainWindow", "Right Click:"))
+        self.CB_RightClick.setItemText(0, _translate("MainWindow", "Default"))
+        self.CB_RightClick.setItemText(1, _translate("MainWindow", "Face Left"))
+        self.CB_RightClick.setItemText(2, _translate("MainWindow", "Face Right"))
+        self.CB_RightClick.setItemText(3, _translate("MainWindow", "Mouth Left"))
+        self.CB_RightClick.setItemText(4, _translate("MainWindow", "Mouth Right"))
+        self.CB_RightClick.setItemText(5, _translate("MainWindow", "Mouth Open"))
+        self.CB_RightClick.setItemText(6, _translate("MainWindow", "Eye Wide"))
+        self.CB_RightClick.setItemText(7, _translate("MainWindow", "Brows Up"))
+        self.LBL_ActivationText_2.setText(_translate("MainWindow", "   To toggle controls : Brows Down + Mouth Open"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Mouse Configuration"))
+        self.LBL_SaveSettings.setText(_translate("MainWindow", "Save settings:"))
+        self.LBL_InputDevice.setText(_translate("MainWindow", "Input Device:"))
+        self.BTN_SaveSettings.setText(_translate("MainWindow", "Save Settings"))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.Tab3), _translate("MainWindow", "Options"))
+        self.CB_LeftClick.currentIndexChanged.connect(self.LeftClickSelect)
+        self.CB_RightClick.currentIndexChanged.connect(self.RightClickSelect)
+        self.CB_MouseMethod.currentIndexChanged.connect(self.MouseSelect)
+        self.CB_Ctrl.currentIndexChanged.connect(self.CtrlSelect)
+        self.CB_Spacebar.currentIndexChanged.connect(self.SpaceSelect)
+        self.CB_Interact.currentIndexChanged.connect(self.InteractSelect)
+        self.CB_MovemetMethod.currentIndexChanged.connect(self.MovementSelect)
 
 
 def GUI_Main():
-    global shared_mem
-    SelectFrameInit()
-    WindowFrame.pack(side=TOP)
-    GUIFrame.mainloop()
-
-
-if __name__ == "__main__":
-    GUI_Main()
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    MainWindow = QtWidgets.QMainWindow()
+    ui = Ui_MainWindow()
+    ui.setupUi(MainWindow)
+    MainWindow.show()
+    sys.exit(app.exec())

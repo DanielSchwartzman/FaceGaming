@@ -151,7 +151,6 @@ def HeadTrackingForMovement(Type, Landmarks):
     yDiff = -int((faceCenterY - Landmarks[4].y) * 1000)
 
     tilt = int((Landmarks[10].x - Landmarks[152].x) * 1000)
-    print(Type)
 
     if abs(yDiff) >= 8:
         if yDiff >= 0:

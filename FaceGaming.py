@@ -1,8 +1,10 @@
 import sys
 import os
 from multiprocessing import shared_memory
-
 shared_mem = shared_memory.SharedMemory(name="KeyBindingMapping", size=11, create=True)
+import GUI.GUI as GUI
+
+
 # Shared_mem indexes correspond to:
 # 0 = "Default",
 # 1 = "Face Left",
@@ -16,15 +18,11 @@ shared_mem = shared_memory.SharedMemory(name="KeyBindingMapping", size=11, creat
 # 9 = "EyeTracking"
 # 10 = "Process state flag on/off"
 
-sys.path.append("GUI/")
-import GUI
-
 
 def main():
     global shared_mem
     os.startfile("FaceDetector.py")
     GUI.GUI_Main()
-    shared_mem.buf[10] = 1
 
 
 if __name__ == "__main__":

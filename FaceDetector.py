@@ -19,6 +19,7 @@ VisionRunningMode = mp.tasks.vision.RunningMode
 
 flag = True
 
+
 def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
     global shared_mem
     if len(result.face_landmarks) >= 1:
@@ -33,7 +34,8 @@ def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timest
         if shared_mem.buf[5] != 0:
             InputController.MouthOpen(shared_mem.buf[5], result.face_blendshapes[0][27].score * 1000)
         if shared_mem.buf[6] != 0:
-            InputController.EyeWide(shared_mem.buf[6], (result.face_blendshapes[0][21].score + result.face_blendshapes[0][22].score) * 1000)
+            InputController.EyeWide(shared_mem.buf[6], (
+                        result.face_blendshapes[0][21].score + result.face_blendshapes[0][22].score) * 1000)
         if shared_mem.buf[7] != 0:
             InputController.BrowsUp(shared_mem.buf[7], result.face_blendshapes[0][3].score * 1000)
         if shared_mem.buf[8] != 0:
