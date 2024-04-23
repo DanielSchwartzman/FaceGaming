@@ -1,4 +1,5 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
+from pyqttoast import Toast, ToastPreset, ToastIcon, ToastPosition, ToastButtonAlignment
 from multiprocessing import shared_memory
 
 shared_mem = shared_memory.SharedMemory(name="KeyBindingMapping", size=11, create=False)
@@ -12,8 +13,10 @@ class Ui_MainWindow(object):
     Ctrl = 0
     Space = 0
     WASD = 0
+    MainWindow = 0
 
     def setupUi(self, MainWindow):
+        self.MainWindow = MainWindow
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(450, 450)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -309,13 +312,14 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def MovementSelect(self):
-        if shared_mem.buf[8] > 0 and self.WASD == 0:
+        if shared_mem.buf[8] > 0 and self.WASD == 0 and self.CB_MovemetMethod.currentIndex() > 0:
             self.CB_MovemetMethod.setCurrentIndex(self.WASD)
+            self.MainWindow.show_toast()
         else:
             if self.WASD != 0 and self.CB_MovemetMethod.currentIndex() == 0:
                 shared_mem.buf[8] = 0
                 self.WASD = 0
-            else:
+            elif shared_mem.buf[8] == 0:
                 shared_mem.buf[8] = self.CB_MovemetMethod.currentIndex()
                 self.WASD = self.CB_MovemetMethod.currentIndex()
 
@@ -323,6 +327,7 @@ class Ui_MainWindow(object):
         if self.CB_MouseMethod.currentIndex() == 1:
             if shared_mem.buf[8] > 0:
                 self.CB_MouseMethod.setCurrentIndex(self.Mouse)
+                self.MainWindow.show_toast()
             else:
                 shared_mem.buf[8] = 3
                 self.Mouse = self.CB_MouseMethod.currentIndex()
@@ -336,6 +341,7 @@ class Ui_MainWindow(object):
         if shared_mem.buf[
             self.CB_Interact.currentIndex()] > 0 and self.CB_Interact.currentIndex() != self.Interact and self.CB_Interact.currentIndex() != 0:
             self.CB_Interact.setCurrentIndex(self.Interact)
+            self.MainWindow.show_toast()
             return
         if self.CB_Interact.currentIndex() != self.Interact:
             shared_mem.buf[self.Interact] = 0
@@ -346,6 +352,7 @@ class Ui_MainWindow(object):
         if shared_mem.buf[
             self.CB_Ctrl.currentIndex()] > 0 and self.CB_Ctrl.currentIndex() != self.Ctrl and self.CB_Ctrl.currentIndex() != 0:
             self.CB_Ctrl.setCurrentIndex(self.Ctrl)
+            self.MainWindow.show_toast()
             return
         if self.CB_Ctrl.currentIndex() != self.Ctrl:
             shared_mem.buf[self.Ctrl] = 0
@@ -356,6 +363,7 @@ class Ui_MainWindow(object):
         if shared_mem.buf[
             self.CB_Spacebar.currentIndex()] > 0 and self.CB_Spacebar.currentIndex() != self.Space and self.CB_Spacebar.currentIndex() != 0:
             self.CB_Spacebar.setCurrentIndex(self.Space)
+            self.MainWindow.show_toast()
             return
         if self.CB_Spacebar.currentIndex() != self.Space:
             shared_mem.buf[self.Space] = 0
@@ -366,6 +374,7 @@ class Ui_MainWindow(object):
         if shared_mem.buf[
             self.CB_LeftClick.currentIndex()] > 0 and self.CB_LeftClick.currentIndex() != self.LeftClick and self.CB_LeftClick.currentIndex() != 0:
             self.CB_LeftClick.setCurrentIndex(self.LeftClick)
+            self.MainWindow.show_toast()
             return
         shared_mem.buf[self.CB_LeftClick.currentIndex()] = 1
         if self.CB_LeftClick.currentIndex() != self.LeftClick:
@@ -376,6 +385,7 @@ class Ui_MainWindow(object):
         if shared_mem.buf[
             self.CB_RightClick.currentIndex()] > 0 and self.CB_RightClick.currentIndex() != self.RightClick and self.CB_RightClick.currentIndex() != 0:
             self.CB_RightClick.setCurrentIndex(self.RightClick)
+            self.MainWindow.show_toast()
             return
         if self.CB_RightClick.currentIndex() != self.RightClick:
             shared_mem.buf[self.RightClick] = 0
@@ -457,11 +467,27 @@ class Ui_MainWindow(object):
         self.CB_MovemetMethod.currentIndexChanged.connect(self.MovementSelect)
 
 
+# Main window class
+class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+    def __init__(self, *args, obj=None, **kwargs):
+        super(MainWindow, self).__init__(*args, **kwargs)
+        self.setupUi(self)
+
+    def closeEvent(self, event):
+        shared_mem.buf[10] = 1
+
+    def show_toast(self):
+        toast = Toast(self)
+        toast.setDuration(5000)  # Hide after 5 seconds
+        toast.setTitle('ERROR')
+        toast.setText('The selected facial expression is already used')
+        toast.applyPreset(ToastPreset.ERROR)  # Apply style preset
+        toast.show()
+
+
 def GUI_Main():
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow()
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    win = MainWindow()
+    win.show()
     sys.exit(app.exec())
