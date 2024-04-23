@@ -1,7 +1,7 @@
 import sys
 import os
 from multiprocessing import shared_memory
-shared_mem = shared_memory.SharedMemory(name="KeyBindingMapping", size=11, create=True)
+shared_mem = shared_memory.SharedMemory(name="KeyBindingMapping", size=13, create=True)
 import GUI.GUI as GUI
 
 
@@ -17,6 +17,8 @@ import GUI.GUI as GUI
 # 8 = "FaceTracking"
 # 9 = "EyeTracking"
 # 10 = "Process state flag on/off"
+# 11 = "Num of available cameras"
+# 12 = "Current Chosen Camera"
 
 
 def main():

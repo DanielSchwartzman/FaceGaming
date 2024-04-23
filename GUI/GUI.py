@@ -1,8 +1,9 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from pyqttoast import Toast, ToastPreset, ToastIcon, ToastPosition, ToastButtonAlignment
 from multiprocessing import shared_memory
+from PyQt6.QtCore import *
 
-shared_mem = shared_memory.SharedMemory(name="KeyBindingMapping", size=11, create=False)
+shared_mem = shared_memory.SharedMemory(name="KeyBindingMapping", size=13, create=False)
 
 
 class Ui_MainWindow(object):
@@ -472,6 +473,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
+        self.timer = QTimer()
+        self.timer.setInterval(1000)
+        self.timer.timeout.connect(self.UpdateCameraCB)
+        self.timer.start()
 
     def closeEvent(self, event):
         shared_mem.buf[10] = 1
@@ -483,6 +488,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         toast.setText('The selected facial expression is already used')
         toast.applyPreset(ToastPreset.ERROR)  # Apply style preset
         toast.show()
+
+    def ChangeCamInput(self):
+        if self.CB_InputDevice.currentIndex() >= 0:
+            shared_mem.buf[12] = self.CB_InputDevice.currentIndex()
+
+    def UpdateCameraCB(self):
+        self.CB_InputDevice.clear()
+        iterator = 0
+        while iterator < shared_mem.buf[11]:
+            self.CB_InputDevice.addItem(f"Camera {iterator}")
+            iterator += 1
+        self.CB_InputDevice.currentIndexChanged.connect(self.ChangeCamInput)
 
 
 def GUI_Main():
