@@ -18,6 +18,7 @@ now that the Python is installed, open CMD and run the following commands:
 * python -m pip install pywin32
 * python -m pip install msvc-runtime
 * python -m pip install pyqt6
+* python -m pip install pyqttoast
 
 You're all set, ensure you got a camera connected to your system and launch FaceGaming.py
 
