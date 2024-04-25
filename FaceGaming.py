@@ -4,7 +4,6 @@ from multiprocessing import shared_memory
 shared_mem = shared_memory.SharedMemory(name="KeyBindingMapping", size=13, create=True)
 import GUI.GUI as GUI
 
-
 # Shared_mem indexes correspond to:
 # 0 = "Default",
 # 1 = "Face Left",

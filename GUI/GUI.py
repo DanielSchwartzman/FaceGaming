@@ -2,6 +2,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from pyqttoast import Toast, ToastPreset, ToastIcon, ToastPosition, ToastButtonAlignment
 from multiprocessing import shared_memory
 from PyQt6.QtCore import *
+import DbManager
 
 shared_mem = shared_memory.SharedMemory(name="KeyBindingMapping", size=13, create=False)
 
@@ -320,7 +321,7 @@ class Ui_MainWindow(object):
             if self.WASD != 0 and self.CB_MovemetMethod.currentIndex() == 0:
                 shared_mem.buf[8] = 0
                 self.WASD = 0
-            elif shared_mem.buf[8] == 0:
+            elif shared_mem.buf[8] == 0 or shared_mem.buf[8] == 1 or shared_mem.buf[8] == 2:
                 shared_mem.buf[8] = self.CB_MovemetMethod.currentIndex()
                 self.WASD = self.CB_MovemetMethod.currentIndex()
 
@@ -335,7 +336,11 @@ class Ui_MainWindow(object):
         else:
             if self.Mouse == 1:
                 shared_mem.buf[8] = 0
-            shared_mem.buf[9] = 1
+            if self.CB_MouseMethod.currentIndex() == 0:
+                shared_mem.buf[9] = 0
+                shared_mem.buf[8] = 0
+            else:
+                shared_mem.buf[9] = 1
             self.Mouse = self.CB_MouseMethod.currentIndex()
 
     def InteractSelect(self):
@@ -466,6 +471,7 @@ class Ui_MainWindow(object):
         self.CB_Spacebar.currentIndexChanged.connect(self.SpaceSelect)
         self.CB_Interact.currentIndexChanged.connect(self.InteractSelect)
         self.CB_MovemetMethod.currentIndexChanged.connect(self.MovementSelect)
+        self.BTN_SaveSettings.clicked.connect(self.SaveSettings)
 
 
 # Main window class
@@ -477,6 +483,10 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.UpdateCameraCB)
         self.timer.start()
+        self.IsFirstTime = False
+        self.Save = []
+        self.Db = DbManager.DbManager()
+        self.LoadSettings()
 
     def closeEvent(self, event):
         shared_mem.buf[10] = 1
@@ -500,6 +510,56 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.CB_InputDevice.addItem(f"Camera {iterator}")
             iterator += 1
         self.CB_InputDevice.currentIndexChanged.connect(self.ChangeCamInput)
+
+    def SaveSettings(self):
+        DatForDb = []
+        index = 0
+        while index < 14:
+            DatForDb.append(shared_mem.buf[index])
+            index += 1
+        print(DatForDb)
+        if self.IsFirstTime:
+            self.Db.PostToDB({"_id": 0, "KeyMapping": DatForDb})
+        else:
+            self.Db.UpdateDB(0, DatForDb)
+
+    def LoadSettings(self):
+        results = self.Db.ReadFromDbById(0)
+        for result in results:
+            self.Save = result["KeyMapping"]
+        print(len(self.Save))
+        if len(self.Save) > 0:
+            self.ComboBoxUpdate()
+            print(self.Save)
+            index = 0
+            while index < 14:
+                shared_mem.buf[index] = self.Save[index]
+                index += 1
+        else:
+            self.IsFirstTime = True
+
+    def ComboBoxUpdate(self):
+        index = 1
+        while index < 8:
+            print(self.Save[index])
+            match self.Save[index]:
+                case 1:
+                    self.CB_LeftClick.setCurrentIndex(index)
+                case 2:
+                    self.CB_RightClick.setCurrentIndex(index)
+                case 3:
+                    self.CB_Spacebar.setCurrentIndex(index)
+                case 4:
+                    self.CB_Ctrl.setCurrentIndex(index)
+                case 5:
+                    self.CB_Interact.setCurrentIndex(index)
+            index += 1
+        if self.Save[8] < 3:
+            self.CB_MovemetMethod.setCurrentIndex(self.Save[8])
+        elif self.Save[8] == 3:
+            self.CB_MouseMethod.setCurrentIndex(1)
+        if self.Save[9] == 1:
+            self.CB_MouseMethod.setCurrentIndex(2)
 
 
 def GUI_Main():
