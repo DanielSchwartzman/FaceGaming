@@ -4,7 +4,7 @@ from pymongo.mongo_client import MongoClient
 
 class DbManager:
     def __init__(self):
-        uri = "mongodb+srv://DanielSchwart:gRcvDMPz5lSlKFRE@facegaming.eyyfifn.mongodb.net/?retryWrites=true&w=majority&appName=FaceGaming"
+        uri = "mongodb+srv://Public:lGaLKy8MX6qEfaUA@facegaming.eyyfifn.mongodb.net/?retryWrites=true&w=majority&appName=FaceGaming"
         client = MongoClient(uri)
         db = client["FaceGamingDB"]
         self.collection = db["Users"]
