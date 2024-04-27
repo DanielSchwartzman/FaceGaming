@@ -3,9 +3,11 @@ from pyqttoast import Toast, ToastPreset, ToastIcon, ToastPosition, ToastButtonA
 from multiprocessing import shared_memory
 from PyQt6.QtCore import *
 import DbManager
+import os
 
 shared_mem = shared_memory.SharedMemory(name="KeyBindingMapping", size=13, create=False)
 
+user_id = 0
 
 class Ui_MainWindow(object):
     Mouse = 0
@@ -486,7 +488,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.IsFirstTime = False
         self.Save = []
         self.Db = DbManager.DbManager()
-        self.LoadSettings()
 
     def closeEvent(self, event):
         shared_mem.buf[10] = 1
@@ -512,25 +513,22 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.CB_InputDevice.currentIndexChanged.connect(self.ChangeCamInput)
 
     def SaveSettings(self):
-        DatForDb = []
-        index = 0
+        DatForDb = [0]
+        index = 1
         while index < 14:
             DatForDb.append(shared_mem.buf[index])
             index += 1
-        print(DatForDb)
         if self.IsFirstTime:
-            self.Db.PostToDB({"_id": 0, "KeyMapping": DatForDb})
+            self.Db.PostToDB({"KeyMapping": DatForDb})
         else:
-            self.Db.UpdateDB(0, DatForDb)
+            self.Db.UpdateDB(user_id, DatForDb)
 
     def LoadSettings(self):
-        results = self.Db.ReadFromDbById(0)
+        results = self.Db.ReadFromDbById(user_id)
         for result in results:
             self.Save = result["KeyMapping"]
-        print(len(self.Save))
         if len(self.Save) > 0:
             self.ComboBoxUpdate()
-            print(self.Save)
             index = 0
             while index < 14:
                 shared_mem.buf[index] = self.Save[index]
@@ -541,7 +539,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
     def ComboBoxUpdate(self):
         index = 1
         while index < 8:
-            print(self.Save[index])
             match self.Save[index]:
                 case 1:
                     self.CB_LeftClick.setCurrentIndex(index)
@@ -563,8 +560,16 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 def GUI_Main():
+    global user_id
     import sys
     app = QtWidgets.QApplication(sys.argv)
     win = MainWindow()
+    if os.path.isfile("UserId.txt"):
+        file = open("UserId.txt", "r")
+        user_id = file.readline()
+        file.close()
+        win.LoadSettings()
+    else:
+        win.IsFirstTime = True
     win.show()
     sys.exit(app.exec())
