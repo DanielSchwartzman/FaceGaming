@@ -1,13 +1,15 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from pyqttoast import Toast, ToastPreset, ToastIcon, ToastPosition, ToastButtonAlignment
-from multiprocessing import shared_memory
 from PyQt6.QtCore import *
+from PyQt6.QtGui import *
+from PyQt6.QtWidgets import *
 import DbManager
 import os
-
-shared_mem = shared_memory.SharedMemory(name="KeyBindingMapping", size=13, create=False)
+import DataManager
+import cv2
 
 user_id = 0
+
 
 class Ui_MainWindow(object):
     Mouse = 0
@@ -276,12 +278,16 @@ class Ui_MainWindow(object):
         self.LBL_SaveSettings.setObjectName("LBL_SaveSettings")
         self.LBL_InputDevice = QtWidgets.QLabel(parent=self.Tab3)
         self.LBL_InputDevice.setGeometry(QtCore.QRect(10, 60, 81, 25))
+        self.LBL_CameraOutput = QtWidgets.QLabel(parent=self.Tab3)
+        self.LBL_CameraOutput.setGeometry(QtCore.QRect(70, 70, 300, 300))
         font = QtGui.QFont()
         font.setFamily("Poppins SemiBold")
         font.setBold(True)
         font.setWeight(75)
         self.LBL_InputDevice.setFont(font)
         self.LBL_InputDevice.setObjectName("LBL_InputDevice")
+        self.LBL_CameraOutput.setFont(font)
+        self.LBL_CameraOutput.setObjectName("LBL_CameraOutput")
         self.BTN_SaveSettings = QtWidgets.QPushButton(parent=self.Tab3)
         self.BTN_SaveSettings.setGeometry(QtCore.QRect(100, 20, 91, 23))
         font = QtGui.QFont()
@@ -316,88 +322,88 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def MovementSelect(self):
-        if shared_mem.buf[8] > 0 and self.WASD == 0 and self.CB_MovemetMethod.currentIndex() > 0:
+        if DataManager.KeyMapping[8] > 0 and self.WASD == 0 and self.CB_MovemetMethod.currentIndex() > 0:
             self.CB_MovemetMethod.setCurrentIndex(self.WASD)
             self.MainWindow.show_toast()
         else:
             if self.WASD != 0 and self.CB_MovemetMethod.currentIndex() == 0:
-                shared_mem.buf[8] = 0
+                DataManager.KeyMapping[8] = 0
                 self.WASD = 0
-            elif shared_mem.buf[8] == 0 or shared_mem.buf[8] == 1 or shared_mem.buf[8] == 2:
-                shared_mem.buf[8] = self.CB_MovemetMethod.currentIndex()
+            elif DataManager.KeyMapping[8] == 0 or DataManager.KeyMapping[8] == 1 or DataManager.KeyMapping[8] == 2:
+                DataManager.KeyMapping[8] = self.CB_MovemetMethod.currentIndex()
                 self.WASD = self.CB_MovemetMethod.currentIndex()
 
     def MouseSelect(self):
         if self.CB_MouseMethod.currentIndex() == 1:
-            if shared_mem.buf[8] > 0:
+            if DataManager.KeyMapping[8] > 0:
                 self.CB_MouseMethod.setCurrentIndex(self.Mouse)
                 self.MainWindow.show_toast()
             else:
-                shared_mem.buf[8] = 3
+                DataManager.KeyMapping[8] = 3
                 self.Mouse = self.CB_MouseMethod.currentIndex()
         else:
             if self.Mouse == 1:
-                shared_mem.buf[8] = 0
+                DataManager.KeyMapping[8] = 0
             if self.CB_MouseMethod.currentIndex() == 0:
-                shared_mem.buf[9] = 0
-                shared_mem.buf[8] = 0
+                DataManager.KeyMapping[9] = 0
+                DataManager.KeyMapping[8] = 0
             else:
-                shared_mem.buf[9] = 1
+                DataManager.KeyMapping[9] = 1
             self.Mouse = self.CB_MouseMethod.currentIndex()
 
     def InteractSelect(self):
-        if shared_mem.buf[
+        if DataManager.KeyMapping[
             self.CB_Interact.currentIndex()] > 0 and self.CB_Interact.currentIndex() != self.Interact and self.CB_Interact.currentIndex() != 0:
             self.CB_Interact.setCurrentIndex(self.Interact)
             self.MainWindow.show_toast()
             return
         if self.CB_Interact.currentIndex() != self.Interact:
-            shared_mem.buf[self.Interact] = 0
-        shared_mem.buf[self.CB_Interact.currentIndex()] = 5
+            DataManager.KeyMapping[self.Interact] = 0
+        DataManager.KeyMapping[self.CB_Interact.currentIndex()] = 5
         self.Interact = self.CB_Interact.currentIndex()
 
     def CtrlSelect(self):
-        if shared_mem.buf[
+        if DataManager.KeyMapping[
             self.CB_Ctrl.currentIndex()] > 0 and self.CB_Ctrl.currentIndex() != self.Ctrl and self.CB_Ctrl.currentIndex() != 0:
             self.CB_Ctrl.setCurrentIndex(self.Ctrl)
             self.MainWindow.show_toast()
             return
         if self.CB_Ctrl.currentIndex() != self.Ctrl:
-            shared_mem.buf[self.Ctrl] = 0
-        shared_mem.buf[self.CB_Ctrl.currentIndex()] = 4
+            DataManager.KeyMapping[self.Ctrl] = 0
+        DataManager.KeyMapping[self.CB_Ctrl.currentIndex()] = 4
         self.Ctrl = self.CB_Ctrl.currentIndex()
 
     def SpaceSelect(self):
-        if shared_mem.buf[
+        if DataManager.KeyMapping[
             self.CB_Spacebar.currentIndex()] > 0 and self.CB_Spacebar.currentIndex() != self.Space and self.CB_Spacebar.currentIndex() != 0:
             self.CB_Spacebar.setCurrentIndex(self.Space)
             self.MainWindow.show_toast()
             return
         if self.CB_Spacebar.currentIndex() != self.Space:
-            shared_mem.buf[self.Space] = 0
-        shared_mem.buf[self.CB_Spacebar.currentIndex()] = 3
+            DataManager.KeyMapping[self.Space] = 0
+        DataManager.KeyMapping[self.CB_Spacebar.currentIndex()] = 3
         self.Space = self.CB_Spacebar.currentIndex()
 
     def LeftClickSelect(self):
-        if shared_mem.buf[
+        if DataManager.KeyMapping[
             self.CB_LeftClick.currentIndex()] > 0 and self.CB_LeftClick.currentIndex() != self.LeftClick and self.CB_LeftClick.currentIndex() != 0:
             self.CB_LeftClick.setCurrentIndex(self.LeftClick)
             self.MainWindow.show_toast()
             return
-        shared_mem.buf[self.CB_LeftClick.currentIndex()] = 1
+        DataManager.KeyMapping[self.CB_LeftClick.currentIndex()] = 1
         if self.CB_LeftClick.currentIndex() != self.LeftClick:
-            shared_mem.buf[self.LeftClick] = 0
+            DataManager.KeyMapping[self.LeftClick] = 0
         self.LeftClick = self.CB_LeftClick.currentIndex()
 
     def RightClickSelect(self):
-        if shared_mem.buf[
+        if DataManager.KeyMapping[
             self.CB_RightClick.currentIndex()] > 0 and self.CB_RightClick.currentIndex() != self.RightClick and self.CB_RightClick.currentIndex() != 0:
             self.CB_RightClick.setCurrentIndex(self.RightClick)
             self.MainWindow.show_toast()
             return
         if self.CB_RightClick.currentIndex() != self.RightClick:
-            shared_mem.buf[self.RightClick] = 0
-        shared_mem.buf[self.CB_RightClick.currentIndex()] = 2
+            DataManager.KeyMapping[self.RightClick] = 0
+        DataManager.KeyMapping[self.CB_RightClick.currentIndex()] = 2
         self.RightClick = self.CB_RightClick.currentIndex()
 
     def retranslateUi(self, MainWindow):
@@ -485,12 +491,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.timer.setInterval(1000)
         self.timer.timeout.connect(self.UpdateCameraCB)
         self.timer.start()
+        self.timer2 = QTimer()
+        self.timer2.setInterval(33)
+        self.timer2.timeout.connect(self.ShowCameraOutput)
+        self.timer2.start()
         self.IsFirstTime = False
         self.Save = []
         self.Db = DbManager.DbManager()
 
+    def changeEvent(self, event):
+        if event.type() == QEvent.WindowStateChange:
+            if event.oldState() and Qt.WindowMinimized:
+                DataManager.IsMinimized = False
+            elif event.oldState() == Qt.WindowNoState or self.windowState() == Qt.WindowMaximized:
+                DataManager.IsMinimized = True
+
     def closeEvent(self, event):
-        shared_mem.buf[10] = 1
+        DataManager.KeyMapping[10] = 1
 
     def show_toast(self):
         toast = Toast(self)
@@ -500,14 +517,24 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         toast.applyPreset(ToastPreset.ERROR)  # Apply style preset
         toast.show()
 
+    def ShowCameraOutput(self):
+        if len(DataManager.Frame) > 0:
+            if not DataManager.IsMinimized:
+                Image = cv2.cvtColor(DataManager.Frame, cv2.COLOR_BGR2RGB)
+                FlippedImage = cv2.flip(Image, 1)
+                ConvertToQtFormat = QImage(FlippedImage.data, FlippedImage.shape[1], FlippedImage.shape[0],
+                                           QImage.Format_RGB888)
+                Pic = ConvertToQtFormat.scaled(300, 300, Qt.KeepAspectRatio)
+                self.LBL_CameraOutput.setPixmap(QPixmap.fromImage(Pic))
+
     def ChangeCamInput(self):
         if self.CB_InputDevice.currentIndex() >= 0:
-            shared_mem.buf[12] = self.CB_InputDevice.currentIndex()
+            DataManager.KeyMapping[12] = self.CB_InputDevice.currentIndex()
 
     def UpdateCameraCB(self):
         self.CB_InputDevice.clear()
         iterator = 0
-        while iterator < shared_mem.buf[11]:
+        while iterator < DataManager.KeyMapping[11]:
             self.CB_InputDevice.addItem(f"Camera {iterator}")
             iterator += 1
         self.CB_InputDevice.currentIndexChanged.connect(self.ChangeCamInput)
@@ -516,7 +543,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         DatForDb = [0]
         index = 1
         while index < 14:
-            DatForDb.append(shared_mem.buf[index])
+            DatForDb.append(DataManager.KeyMapping[index])
             index += 1
         if self.IsFirstTime:
             self.Db.PostToDB({"KeyMapping": DatForDb})
@@ -531,7 +558,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             self.ComboBoxUpdate()
             index = 0
             while index < 14:
-                shared_mem.buf[index] = self.Save[index]
+                DataManager.KeyMapping[index] = self.Save[index]
                 index += 1
         else:
             self.IsFirstTime = True
