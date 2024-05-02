@@ -11,6 +11,10 @@ FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
 FaceLandmarkerResult = mp.tasks.vision.FaceLandmarkerResult
 VisionRunningMode = mp.tasks.vision.RunningMode
 
+cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+
 flag = True
 ActivationFlag = False
 ReleaseFlag = False
@@ -58,6 +62,7 @@ options = FaceLandmarkerOptions(
 
 
 def findAvailableCameras():
+    global cap
     flg = True
     CamIndex = 0
     NumOfCameras = 0
@@ -72,12 +77,15 @@ def findAvailableCameras():
         else:
             flg = False
     DataManager.KeyMapping[11] = NumOfCameras
+    DataManager.IsCamReady = True
 
 
 def DetectFaceLandmarks():
+    global cap
     findAvailableCameras()
-    CurrCamera = DataManager.KeyMapping[12]
-    cap = cv2.VideoCapture(CurrCamera, cv2.CAP_DSHOW)
+    DataManager.KeyMapping[12] = 0
+    CurrCamera = 0
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     with FaceLandmarker.create_from_options(options) as landmarker:
@@ -92,8 +100,7 @@ def DetectFaceLandmarks():
             if ret:
                 mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
                 landmarker.detect_async(mp_image, int(ms))
-                if not DataManager.IsMinimized:
-                    DataManager.Frame = frame
+                DataManager.Frame = frame
             key = cv2.waitKey(1)
             if key == ord('q') or DataManager.KeyMapping[10] == 1:
                 break

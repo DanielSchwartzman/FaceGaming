@@ -528,16 +528,17 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.LBL_CameraOutput.setPixmap(QPixmap.fromImage(Pic))
 
     def ChangeCamInput(self):
-        if self.CB_InputDevice.currentIndex() >= 0:
-            DataManager.KeyMapping[12] = self.CB_InputDevice.currentIndex()
+        DataManager.KeyMapping[12] = self.CB_InputDevice.currentIndex()
 
     def UpdateCameraCB(self):
-        self.CB_InputDevice.clear()
-        iterator = 0
-        while iterator < DataManager.KeyMapping[11]:
-            self.CB_InputDevice.addItem(f"Camera {iterator}")
-            iterator += 1
-        self.CB_InputDevice.currentIndexChanged.connect(self.ChangeCamInput)
+        if DataManager.IsCamReady:
+            DataManager.IsCamReady = False
+            self.CB_InputDevice.clear()
+            iterator = 0
+            while iterator < DataManager.KeyMapping[11]:
+                self.CB_InputDevice.addItem(f"Camera {iterator}")
+                iterator += 1
+            self.CB_InputDevice.currentIndexChanged.connect(self.ChangeCamInput)
 
     def SaveSettings(self):
         DatForDb = [0]
