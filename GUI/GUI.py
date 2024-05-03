@@ -1,10 +1,11 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
-from pyqttoast import Toast, ToastPreset
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 import DbManager
 import DataManager
 import cv2
+from PyQt6.QtCore import Qt
+from pyqttoast import Toast, ToastPreset
 
 
 class Ui_MainWindow(object):
@@ -446,8 +447,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.WASD = self.CB_MovemetMethod.currentIndex()
 
     def MouseSelect(self):
-        if self.CB_MouseMethod.currentIndex() == 1:
-            if DataManager.KeyMapping[8] > 0:
+        if self.CB_MouseMethod.currentIndex() == 1 or ((DataManager.KeyMapping[1] != 0 or DataManager.KeyMapping[2] != 0) and self.CB_MouseMethod.currentIndex() == 1):
+            if DataManager.KeyMapping[8] > 0 or (DataManager.KeyMapping[1] != 0 or DataManager.KeyMapping[2] != 0):
                 self.CB_MouseMethod.setCurrentIndex(self.Mouse)
                 self.MainWindow.show_toast()
             else:
@@ -465,7 +466,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def InteractSelect(self):
         if DataManager.KeyMapping[
-            self.CB_Interact.currentIndex()] > 0 and self.CB_Interact.currentIndex() != self.Interact and self.CB_Interact.currentIndex() != 0:
+            self.CB_Interact.currentIndex()] > 0 and self.CB_Interact.currentIndex() != self.Interact and self.CB_Interact.currentIndex() != 0 or (DataManager.KeyMapping[8] == 3 and 0 < self.CB_Interact.currentIndex() <= 2):
             self.CB_Interact.setCurrentIndex(self.Interact)
             self.MainWindow.show_toast()
             return
@@ -476,7 +477,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def CtrlSelect(self):
         if DataManager.KeyMapping[
-            self.CB_Ctrl.currentIndex()] > 0 and self.CB_Ctrl.currentIndex() != self.Ctrl and self.CB_Ctrl.currentIndex() != 0:
+            self.CB_Ctrl.currentIndex()] > 0 and self.CB_Ctrl.currentIndex() != self.Ctrl and self.CB_Ctrl.currentIndex() != 0 or (DataManager.KeyMapping[8] == 3 and 0 < self.CB_Ctrl.currentIndex() <= 2):
             self.CB_Ctrl.setCurrentIndex(self.Ctrl)
             self.MainWindow.show_toast()
             return
@@ -486,9 +487,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.Ctrl = self.CB_Ctrl.currentIndex()
 
     def SpaceSelect(self):
-        print(self.Space)
         if DataManager.KeyMapping[
-            self.CB_Spacebar.currentIndex()] > 0 and self.CB_Spacebar.currentIndex() != self.Space and self.CB_Spacebar.currentIndex() != 0:
+            self.CB_Spacebar.currentIndex()] > 0 and self.CB_Spacebar.currentIndex() != self.Space and self.CB_Spacebar.currentIndex() != 0 or (DataManager.KeyMapping[8] == 3 and 0 < self.CB_Spacebar.currentIndex() <= 2):
             self.CB_Spacebar.setCurrentIndex(self.Space)
             self.MainWindow.show_toast()
             return
@@ -499,7 +499,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def LeftClickSelect(self):
         if DataManager.KeyMapping[
-            self.CB_LeftClick.currentIndex()] > 0 and self.CB_LeftClick.currentIndex() != self.LeftClick and self.CB_LeftClick.currentIndex() != 0:
+            self.CB_LeftClick.currentIndex()] > 0 and self.CB_LeftClick.currentIndex() != self.LeftClick and self.CB_LeftClick.currentIndex() != 0 or (DataManager.KeyMapping[8] == 3 and 0 < self.CB_LeftClick.currentIndex() <= 2):
             self.CB_LeftClick.setCurrentIndex(self.LeftClick)
             self.MainWindow.show_toast()
             return
@@ -510,7 +510,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
 
     def RightClickSelect(self):
         if DataManager.KeyMapping[
-            self.CB_RightClick.currentIndex()] > 0 and self.CB_RightClick.currentIndex() != self.RightClick and self.CB_RightClick.currentIndex() != 0:
+            self.CB_RightClick.currentIndex()] > 0 and self.CB_RightClick.currentIndex() != self.RightClick and self.CB_RightClick.currentIndex() != 0 or (DataManager.KeyMapping[8] == 3 and 0 < self.CB_RightClick.currentIndex() <= 2):
             self.CB_RightClick.setCurrentIndex(self.RightClick)
             self.MainWindow.show_toast()
             return

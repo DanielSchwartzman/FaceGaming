@@ -19,9 +19,11 @@ flag = True
 ActivationFlag = False
 ReleaseFlag = False
 
+lock = False
+
 
 def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
-    global ActivationFlag, ReleaseFlag
+    global ActivationFlag, ReleaseFlag, lock
     if len(result.face_landmarks) >= 1:
         if ActivationFlag:
             if DataManager.KeyMapping[1] != 0:
@@ -51,6 +53,7 @@ def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timest
         elif result.face_blendshapes[0][27].score * 1000 < 0.9 and (
                 result.face_blendshapes[0][1].score + result.face_blendshapes[0][2].score) * 1000 < 200 and ReleaseFlag:
             ReleaseFlag = False
+        lock = False
 
 
 options = FaceLandmarkerOptions(
@@ -76,12 +79,11 @@ def findAvailableCameras():
         else:
             flg = False
         cv2.destroyAllWindows()
-        time.sleep(5)
     DataManager.IsCamReady = True
 
 
 def DetectFaceLandmarks():
-    global cap
+    global cap, lock
     findAvailableCameras()
     DataManager.KeyMapping[12] = 0
     CurrCamera = 0
@@ -101,7 +103,9 @@ def DetectFaceLandmarks():
                 mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
                 if not DataManager.IsMinimized:
                     DataManager.Frame = frame
-                landmarker.detect_async(mp_image, int(ms))
+                if not lock:
+                    lock = True
+                    landmarker.detect_async(mp_image, int(ms))
             key = cv2.waitKey(1)
             if key == ord('q') or DataManager.KeyMapping[10] == 1:
                 break

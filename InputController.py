@@ -1,7 +1,6 @@
 import win32api
 import win32con
 import keyboard
-import time
 
 ACCEPTABLE_MOUTH_SCORE = 200
 ACCEPTABLE_EYE_WIDE_SCORE = 35
@@ -136,7 +135,6 @@ def HeadTrackingForMouse(Landmarks):
             if j != yDiff:
                 win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, yChange)
                 j += yChange
-            time.sleep(0.0002)
 
 
 def HeadTrackingForMovement(Type, Landmarks):
