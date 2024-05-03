@@ -1,7 +1,6 @@
 import win32api
 import win32con
 import keyboard
-import math
 import time
 
 ACCEPTABLE_MOUTH_SCORE = 200
@@ -10,12 +9,6 @@ ACCEPTABLE_BROWS_SCORE = 300
 ACCEPTABLE_MOUTH_OPEN_SCORE = 1
 
 InputFlagArray = [False, False, False, False, False, False, False]
-
-flag = 0
-
-
-def Distance(firstX, firstY, secondX, secondY):
-    return math.sqrt(math.pow(firstX - secondX, 2) + math.pow(firstY - secondY, 2)) * 1000
 
 
 def SendInputToPC(Key, ToPress):

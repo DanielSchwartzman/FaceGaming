@@ -1,4 +1,3 @@
-import sys
 import threading
 import GUI.GUI as GUI
 import FaceDetector

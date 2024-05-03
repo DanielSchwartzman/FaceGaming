@@ -10,7 +10,7 @@ class DbManager:
         self.collection = db["Users"]
 
     def PostToDB(self, Data):
-        result = self.collection.insert_one(Data)
+        result = self.collection.insert_one({"KeyMapping": Data})
         file = open("UserId.txt", "w")
         file.write(str(result.inserted_id))
         file.close()
@@ -19,4 +19,5 @@ class DbManager:
         return self.collection.find({"_id": ObjectId(_id)})
 
     def UpdateDB(self, _id, Data):
+        print(Data)
         self.collection.update({"_id": ObjectId(_id)}, {"$set": {"KeyMapping": Data}})

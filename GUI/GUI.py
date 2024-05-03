@@ -1,14 +1,10 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
-from pyqttoast import Toast, ToastPreset, ToastIcon, ToastPosition, ToastButtonAlignment
+from pyqttoast import Toast, ToastPreset
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
-from PyQt6.QtWidgets import *
 import DbManager
-import os
 import DataManager
 import cv2
-
-user_id = 0
 
 
 class Ui_MainWindow(object):
@@ -321,91 +317,6 @@ class Ui_MainWindow(object):
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
-    def MovementSelect(self):
-        if DataManager.KeyMapping[8] > 0 and self.WASD == 0 and self.CB_MovemetMethod.currentIndex() > 0:
-            self.CB_MovemetMethod.setCurrentIndex(self.WASD)
-            self.MainWindow.show_toast()
-        else:
-            if self.WASD != 0 and self.CB_MovemetMethod.currentIndex() == 0:
-                DataManager.KeyMapping[8] = 0
-                self.WASD = 0
-            elif DataManager.KeyMapping[8] == 0 or DataManager.KeyMapping[8] == 1 or DataManager.KeyMapping[8] == 2:
-                DataManager.KeyMapping[8] = self.CB_MovemetMethod.currentIndex()
-                self.WASD = self.CB_MovemetMethod.currentIndex()
-
-    def MouseSelect(self):
-        if self.CB_MouseMethod.currentIndex() == 1:
-            if DataManager.KeyMapping[8] > 0:
-                self.CB_MouseMethod.setCurrentIndex(self.Mouse)
-                self.MainWindow.show_toast()
-            else:
-                DataManager.KeyMapping[8] = 3
-                self.Mouse = self.CB_MouseMethod.currentIndex()
-        else:
-            if self.Mouse == 1:
-                DataManager.KeyMapping[8] = 0
-            if self.CB_MouseMethod.currentIndex() == 0:
-                DataManager.KeyMapping[9] = 0
-                DataManager.KeyMapping[8] = 0
-            else:
-                DataManager.KeyMapping[9] = 1
-            self.Mouse = self.CB_MouseMethod.currentIndex()
-
-    def InteractSelect(self):
-        if DataManager.KeyMapping[
-            self.CB_Interact.currentIndex()] > 0 and self.CB_Interact.currentIndex() != self.Interact and self.CB_Interact.currentIndex() != 0:
-            self.CB_Interact.setCurrentIndex(self.Interact)
-            self.MainWindow.show_toast()
-            return
-        if self.CB_Interact.currentIndex() != self.Interact:
-            DataManager.KeyMapping[self.Interact] = 0
-        DataManager.KeyMapping[self.CB_Interact.currentIndex()] = 5
-        self.Interact = self.CB_Interact.currentIndex()
-
-    def CtrlSelect(self):
-        if DataManager.KeyMapping[
-            self.CB_Ctrl.currentIndex()] > 0 and self.CB_Ctrl.currentIndex() != self.Ctrl and self.CB_Ctrl.currentIndex() != 0:
-            self.CB_Ctrl.setCurrentIndex(self.Ctrl)
-            self.MainWindow.show_toast()
-            return
-        if self.CB_Ctrl.currentIndex() != self.Ctrl:
-            DataManager.KeyMapping[self.Ctrl] = 0
-        DataManager.KeyMapping[self.CB_Ctrl.currentIndex()] = 4
-        self.Ctrl = self.CB_Ctrl.currentIndex()
-
-    def SpaceSelect(self):
-        if DataManager.KeyMapping[
-            self.CB_Spacebar.currentIndex()] > 0 and self.CB_Spacebar.currentIndex() != self.Space and self.CB_Spacebar.currentIndex() != 0:
-            self.CB_Spacebar.setCurrentIndex(self.Space)
-            self.MainWindow.show_toast()
-            return
-        if self.CB_Spacebar.currentIndex() != self.Space:
-            DataManager.KeyMapping[self.Space] = 0
-        DataManager.KeyMapping[self.CB_Spacebar.currentIndex()] = 3
-        self.Space = self.CB_Spacebar.currentIndex()
-
-    def LeftClickSelect(self):
-        if DataManager.KeyMapping[
-            self.CB_LeftClick.currentIndex()] > 0 and self.CB_LeftClick.currentIndex() != self.LeftClick and self.CB_LeftClick.currentIndex() != 0:
-            self.CB_LeftClick.setCurrentIndex(self.LeftClick)
-            self.MainWindow.show_toast()
-            return
-        DataManager.KeyMapping[self.CB_LeftClick.currentIndex()] = 1
-        if self.CB_LeftClick.currentIndex() != self.LeftClick:
-            DataManager.KeyMapping[self.LeftClick] = 0
-        self.LeftClick = self.CB_LeftClick.currentIndex()
-
-    def RightClickSelect(self):
-        if DataManager.KeyMapping[
-            self.CB_RightClick.currentIndex()] > 0 and self.CB_RightClick.currentIndex() != self.RightClick and self.CB_RightClick.currentIndex() != 0:
-            self.CB_RightClick.setCurrentIndex(self.RightClick)
-            self.MainWindow.show_toast()
-            return
-        if self.CB_RightClick.currentIndex() != self.RightClick:
-            DataManager.KeyMapping[self.RightClick] = 0
-        DataManager.KeyMapping[self.CB_RightClick.currentIndex()] = 2
-        self.RightClick = self.CB_RightClick.currentIndex()
-
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "FaceGaming"))
@@ -472,6 +383,19 @@ class Ui_MainWindow(object):
         self.LBL_InputDevice.setText(_translate("MainWindow", "Input Device:"))
         self.BTN_SaveSettings.setText(_translate("MainWindow", "Save Settings"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Tab3), _translate("MainWindow", "Options"))
+
+
+# Main window class
+class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+    def __init__(self, *args, obj=None, **kwargs):
+        super(MainWindow, self).__init__(*args, **kwargs)
+        self.setupUi(self)
+        self.Db = DbManager.DbManager()
+        if DataManager.CheckIfFileExists():
+            self.IsFirstTime = False
+            self.LoadSettings()
+        else:
+            self.IsFirstTime = True
         self.CB_LeftClick.currentIndexChanged.connect(self.LeftClickSelect)
         self.CB_RightClick.currentIndexChanged.connect(self.RightClickSelect)
         self.CB_MouseMethod.currentIndexChanged.connect(self.MouseSelect)
@@ -481,23 +405,15 @@ class Ui_MainWindow(object):
         self.CB_MovemetMethod.currentIndexChanged.connect(self.MovementSelect)
         self.BTN_SaveSettings.clicked.connect(self.SaveSettings)
 
+        self.WaitForCameraTimer = QTimer()
+        self.WaitForCameraTimer.setInterval(1000)
+        self.WaitForCameraTimer.timeout.connect(self.UpdateCameraCB)
+        self.WaitForCameraTimer.start()
 
-# Main window class
-class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
-    def __init__(self, *args, obj=None, **kwargs):
-        super(MainWindow, self).__init__(*args, **kwargs)
-        self.setupUi(self)
-        self.timer = QTimer()
-        self.timer.setInterval(1000)
-        self.timer.timeout.connect(self.UpdateCameraCB)
-        self.timer.start()
-        self.timer2 = QTimer()
-        self.timer2.setInterval(33)
-        self.timer2.timeout.connect(self.ShowCameraOutput)
-        self.timer2.start()
-        self.IsFirstTime = False
-        self.Save = []
-        self.Db = DbManager.DbManager()
+        self.DisplayImageFromThreadAt30FpsTimer = QTimer()
+        self.DisplayImageFromThreadAt30FpsTimer.setInterval(33)
+        self.DisplayImageFromThreadAt30FpsTimer.timeout.connect(self.ShowCameraOutput)
+        self.DisplayImageFromThreadAt30FpsTimer.start()
 
     def changeEvent(self, event):
         if event.type() == QEvent.WindowStateChange:
@@ -516,6 +432,92 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         toast.setText('The selected facial expression is already used')
         toast.applyPreset(ToastPreset.ERROR)  # Apply style preset
         toast.show()
+
+    def MovementSelect(self):
+        if DataManager.KeyMapping[8] > 0 and self.WASD == 0 and self.CB_MovemetMethod.currentIndex() > 0:
+            self.CB_MovemetMethod.setCurrentIndex(self.WASD)
+            self.MainWindow.show_toast()
+        else:
+            if self.WASD != 0 and self.CB_MovemetMethod.currentIndex() == 0:
+                DataManager.KeyMapping[8] = 0
+                self.WASD = 0
+            elif DataManager.KeyMapping[8] == 0 or DataManager.KeyMapping[8] == 1 or DataManager.KeyMapping[8] == 2:
+                DataManager.KeyMapping[8] = self.CB_MovemetMethod.currentIndex()
+                self.WASD = self.CB_MovemetMethod.currentIndex()
+
+    def MouseSelect(self):
+        if self.CB_MouseMethod.currentIndex() == 1:
+            if DataManager.KeyMapping[8] > 0:
+                self.CB_MouseMethod.setCurrentIndex(self.Mouse)
+                self.MainWindow.show_toast()
+            else:
+                DataManager.KeyMapping[8] = 3
+                self.Mouse = self.CB_MouseMethod.currentIndex()
+        else:
+            if self.Mouse == 1:
+                DataManager.KeyMapping[8] = 0
+            if self.CB_MouseMethod.currentIndex() == 0:
+                DataManager.KeyMapping[9] = 0
+                DataManager.KeyMapping[8] = 0
+            else:
+                DataManager.KeyMapping[9] = 1
+            self.Mouse = self.CB_MouseMethod.currentIndex()
+
+    def InteractSelect(self):
+        if DataManager.KeyMapping[
+            self.CB_Interact.currentIndex()] > 0 and self.CB_Interact.currentIndex() != self.Interact and self.CB_Interact.currentIndex() != 0:
+            self.CB_Interact.setCurrentIndex(self.Interact)
+            self.MainWindow.show_toast()
+            return
+        if self.CB_Interact.currentIndex() != self.Interact:
+            DataManager.KeyMapping[self.Interact] = 0
+        DataManager.KeyMapping[self.CB_Interact.currentIndex()] = 5
+        self.Interact = self.CB_Interact.currentIndex()
+
+    def CtrlSelect(self):
+        if DataManager.KeyMapping[
+            self.CB_Ctrl.currentIndex()] > 0 and self.CB_Ctrl.currentIndex() != self.Ctrl and self.CB_Ctrl.currentIndex() != 0:
+            self.CB_Ctrl.setCurrentIndex(self.Ctrl)
+            self.MainWindow.show_toast()
+            return
+        if self.CB_Ctrl.currentIndex() != self.Ctrl:
+            DataManager.KeyMapping[self.Ctrl] = 0
+        DataManager.KeyMapping[self.CB_Ctrl.currentIndex()] = 4
+        self.Ctrl = self.CB_Ctrl.currentIndex()
+
+    def SpaceSelect(self):
+        print(self.Space)
+        if DataManager.KeyMapping[
+            self.CB_Spacebar.currentIndex()] > 0 and self.CB_Spacebar.currentIndex() != self.Space and self.CB_Spacebar.currentIndex() != 0:
+            self.CB_Spacebar.setCurrentIndex(self.Space)
+            self.MainWindow.show_toast()
+            return
+        if self.CB_Spacebar.currentIndex() != self.Space:
+            DataManager.KeyMapping[self.Space] = 0
+        DataManager.KeyMapping[self.CB_Spacebar.currentIndex()] = 3
+        self.Space = self.CB_Spacebar.currentIndex()
+
+    def LeftClickSelect(self):
+        if DataManager.KeyMapping[
+            self.CB_LeftClick.currentIndex()] > 0 and self.CB_LeftClick.currentIndex() != self.LeftClick and self.CB_LeftClick.currentIndex() != 0:
+            self.CB_LeftClick.setCurrentIndex(self.LeftClick)
+            self.MainWindow.show_toast()
+            return
+        DataManager.KeyMapping[self.CB_LeftClick.currentIndex()] = 1
+        if self.CB_LeftClick.currentIndex() != self.LeftClick:
+            DataManager.KeyMapping[self.LeftClick] = 0
+        self.LeftClick = self.CB_LeftClick.currentIndex()
+
+    def RightClickSelect(self):
+        if DataManager.KeyMapping[
+            self.CB_RightClick.currentIndex()] > 0 and self.CB_RightClick.currentIndex() != self.RightClick and self.CB_RightClick.currentIndex() != 0:
+            self.CB_RightClick.setCurrentIndex(self.RightClick)
+            self.MainWindow.show_toast()
+            return
+        if self.CB_RightClick.currentIndex() != self.RightClick:
+            DataManager.KeyMapping[self.RightClick] = 0
+        DataManager.KeyMapping[self.CB_RightClick.currentIndex()] = 2
+        self.RightClick = self.CB_RightClick.currentIndex()
 
     def ShowCameraOutput(self):
         if len(DataManager.Frame) > 0:
@@ -539,65 +541,61 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 self.CB_InputDevice.addItem(f"Camera {iterator}")
                 iterator += 1
             self.CB_InputDevice.currentIndexChanged.connect(self.ChangeCamInput)
+            self.WaitForCameraTimer.stop()
 
     def SaveSettings(self):
-        DatForDb = [0]
-        index = 1
-        while index < 14:
-            DatForDb.append(DataManager.KeyMapping[index])
-            index += 1
         if self.IsFirstTime:
-            self.Db.PostToDB({"KeyMapping": DatForDb})
+            self.Db.PostToDB(DataManager.KeyMapping)
         else:
-            self.Db.UpdateDB(user_id, DatForDb)
+            self.Db.UpdateDB(DataManager.user_id, DataManager.KeyMapping)
 
     def LoadSettings(self):
-        results = self.Db.ReadFromDbById(user_id)
+        Save = []
+        results = self.Db.ReadFromDbById(DataManager.user_id)
         for result in results:
-            self.Save = result["KeyMapping"]
-        if len(self.Save) > 0:
-            self.ComboBoxUpdate()
+            Save = result["KeyMapping"]
+        if len(Save) > 0:
+            print(Save)
+            self.ComboBoxUpdate(Save)
             index = 0
-            while index < 14:
-                DataManager.KeyMapping[index] = self.Save[index]
+            while index < 13:
+                DataManager.KeyMapping[index] = Save[index]
                 index += 1
-        else:
-            self.IsFirstTime = True
 
-    def ComboBoxUpdate(self):
+    def ComboBoxUpdate(self, Save):
         index = 1
         while index < 8:
-            match self.Save[index]:
+            match Save[index]:
                 case 1:
                     self.CB_LeftClick.setCurrentIndex(index)
+                    self.LeftClick = index
                 case 2:
                     self.CB_RightClick.setCurrentIndex(index)
+                    self.RightClick = index
                 case 3:
                     self.CB_Spacebar.setCurrentIndex(index)
+                    self.Space = index
                 case 4:
                     self.CB_Ctrl.setCurrentIndex(index)
+                    self.Ctrl = index
                 case 5:
                     self.CB_Interact.setCurrentIndex(index)
+                    self.Interact = index
             index += 1
-        if self.Save[8] < 3:
-            self.CB_MovemetMethod.setCurrentIndex(self.Save[8])
-        elif self.Save[8] == 3:
+        if Save[8] < 3:
+            self.CB_MovemetMethod.setCurrentIndex(Save[8])
+            self.WASD = Save[8]
+        elif Save[8] == 3:
             self.CB_MouseMethod.setCurrentIndex(1)
-        if self.Save[9] == 1:
+            self.WASD = Save[8]
+        if Save[9] == 1:
             self.CB_MouseMethod.setCurrentIndex(2)
+            self.Mouse = 2
 
 
 def GUI_Main():
-    global user_id
     import sys
     app = QtWidgets.QApplication(sys.argv)
     win = MainWindow()
-    if os.path.isfile("UserId.txt"):
-        file = open("UserId.txt", "r")
-        user_id = file.readline()
-        file.close()
-        win.LoadSettings()
-    else:
-        win.IsFirstTime = True
     win.show()
     sys.exit(app.exec())

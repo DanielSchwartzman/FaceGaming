@@ -65,18 +65,18 @@ def findAvailableCameras():
     global cap
     flg = True
     CamIndex = 0
-    NumOfCameras = 0
     while flg:
         cap = cv2.VideoCapture(CamIndex, cv2.CAP_DSHOW)
-        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1)
-        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1)
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
         ret, frame = cap.read()
         if ret:
-            NumOfCameras += 1
+            DataManager.KeyMapping[11] += 1
             CamIndex += 1
         else:
             flg = False
-    DataManager.KeyMapping[11] = NumOfCameras
+        cv2.destroyAllWindows()
+        time.sleep(5)
     DataManager.IsCamReady = True
 
 
@@ -99,8 +99,9 @@ def DetectFaceLandmarks():
             ret, frame = cap.read()
             if ret:
                 mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
+                if not DataManager.IsMinimized:
+                    DataManager.Frame = frame
                 landmarker.detect_async(mp_image, int(ms))
-                DataManager.Frame = frame
             key = cv2.waitKey(1)
             if key == ord('q') or DataManager.KeyMapping[10] == 1:
                 break
