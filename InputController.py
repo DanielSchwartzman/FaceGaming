@@ -5,7 +5,7 @@ import keyboard
 ACCEPTABLE_MOUTH_SCORE = 200
 ACCEPTABLE_EYE_WIDE_SCORE = 35
 ACCEPTABLE_BROWS_SCORE = 300
-ACCEPTABLE_MOUTH_OPEN_SCORE = 1
+ACCEPTABLE_MOUTH_OPEN_SCORE = 25
 
 InputFlagArray = [False, False, False, False, False, False, False]
 
@@ -81,7 +81,8 @@ def MouthRight(Key, Score):
         InputFlagArray[3] = False
 
 
-def MouthOpen(Key, Score):
+def MouthOpen(Key, landmarks):
+    Score = (abs(landmarks[11].y * 480 - landmarks[16].y * 480))
     if Score >= ACCEPTABLE_MOUTH_OPEN_SCORE and InputFlagArray[4] == False:
         SendInputToPC(Key, True)
         InputFlagArray[4] = True
@@ -175,38 +176,42 @@ def HeadTracking(Type, Landmarks):
         HeadTrackingForMovement(Type, Landmarks)
 
 
-distUpThresh = 0
-distDownThresh = 0
+LeftCal = False
+RightCal = False
+UpCal = False
+DownCal = False
+
+UpTrig = 0
+DownTrig = 0
+LeftTrig = 0
+RightTrig = 0
 
 
-def EyeTracking(Landmarks):
-    global distUpThresh, distDownThresh
-    lx = int((Landmarks[130].x * 640) * 1000)
-    rx = int((Landmarks[133].x * 640) * 1000)
-    uy = int((Landmarks[104].y * 480) * 1000)
-    by = int((Landmarks[230].y * 480) * 1000)
+def EyeTracking(BlendShapes):
+    global LeftCal, RightCal, UpCal, DownCal, UpTrig, DownTrig, LeftTrig, RightTrig
+    if keyboard.is_pressed("up"):
+        UpTrig = BlendShapes[17].score * 100
+        UpCal = True
+    if keyboard.is_pressed("down"):
+        DownTrig = BlendShapes[11].score * 100
+        DownCal = True
+    if keyboard.is_pressed("left"):
+        LeftTrig = BlendShapes[13].score * 100
+        LeftCal = True
+    if keyboard.is_pressed("right"):
+        RightTrig = BlendShapes[14].score * 100
+        RightCal = True
 
-    mx = int((Landmarks[468].x * 640) * 1000)
-    my = int((Landmarks[159].y * 480) * 1000)
+    print(BlendShapes[11].score * 100, BlendShapes[17].score * 100)
+    print(BlendShapes[13].score * 100, BlendShapes[14].score * 100)
 
-    distLeft = abs(lx - mx)
-    distRight = abs(rx - mx)
-
-    distUp = abs(uy - my)
-    distDown = abs(by - my)
-
-    if keyboard.is_pressed('e'):
-        distUpThresh = distUp
-    if keyboard.is_pressed('r'):
-        distDownThresh = distDown
-
-    if abs(distLeft - distRight) >= 100000:
-        if distLeft > distRight:
+    if UpCal and DownCal and LeftCal and RightCal:
+        if BlendShapes[13].score * 100 < LeftTrig:
             win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, -10, 0)
-        else:
+        elif BlendShapes[14].score * 100 < RightTrig:
             win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 10, 0)
-    if abs(distUp - distDown) >= 400:
-        if distUp <= distUpThresh:
+
+        if BlendShapes[17].score * 100 > UpTrig:
             win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, -10)
-        elif distDown >= distDownThresh != 0:
+        elif BlendShapes[11].score * 100 > DownTrig:
             win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, 10)

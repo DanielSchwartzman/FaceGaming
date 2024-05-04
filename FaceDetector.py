@@ -35,7 +35,7 @@ def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timest
             if DataManager.KeyMapping[4] != 0:
                 InputController.MouthRight(DataManager.KeyMapping[4], result.face_blendshapes[0][39].score * 1000)
             if DataManager.KeyMapping[5] != 0:
-                InputController.MouthOpen(DataManager.KeyMapping[5], result.face_blendshapes[0][27].score * 1000)
+                InputController.MouthOpen(DataManager.KeyMapping[5], result.face_landmarks[0])
             if DataManager.KeyMapping[6] != 0:
                 InputController.EyeWide(DataManager.KeyMapping[6], (
                         result.face_blendshapes[0][21].score + result.face_blendshapes[0][22].score) * 1000)
@@ -44,16 +44,16 @@ def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timest
             if DataManager.KeyMapping[8] != 0:
                 InputController.HeadTracking(DataManager.KeyMapping[8], result.face_landmarks[0])
             if DataManager.KeyMapping[9] != 0:
-                InputController.EyeTracking(result.face_landmarks[0])
-        if result.face_blendshapes[0][27].score * 1000 > 0.9 and (
+                InputController.EyeTracking(result.face_blendshapes[0])
+        if abs(result.face_landmarks[0][11].y * 480 - result.face_landmarks[0][16].y * 480) > 30 and (
                 result.face_blendshapes[0][1].score + result.face_blendshapes[0][
             2].score) * 1000 > 200 and not ReleaseFlag:
             ActivationFlag = not ActivationFlag
             ReleaseFlag = True
-        elif result.face_blendshapes[0][27].score * 1000 < 0.9 and (
+        elif abs(result.face_landmarks[0][11].y * 480 - result.face_landmarks[0][16].y * 480) > 30 and (
                 result.face_blendshapes[0][1].score + result.face_blendshapes[0][2].score) * 1000 < 200 and ReleaseFlag:
             ReleaseFlag = False
-        lock = False
+    lock = False
 
 
 options = FaceLandmarkerOptions(
