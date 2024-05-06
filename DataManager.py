@@ -5,6 +5,8 @@ KeyMapping = [0] * 13
 IsMinimized = False
 IsCamReady = False
 
+WorkingThread = 1
+
 user_id = 0
 
 

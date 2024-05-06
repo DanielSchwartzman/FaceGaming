@@ -19,11 +19,15 @@ flag = True
 ActivationFlag = False
 ReleaseFlag = False
 
-lock = False
+lock = 0
 
 
 def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
     global ActivationFlag, ReleaseFlag, lock
+    if DataManager.WorkingThread == 1:
+        DataManager.WorkingThread = 2
+    else:
+        DataManager.WorkingThread = 1
     if len(result.face_landmarks) >= 1:
         if ActivationFlag:
             if DataManager.KeyMapping[1] != 0:
@@ -43,8 +47,6 @@ def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timest
                 InputController.BrowsUp(DataManager.KeyMapping[7], result.face_blendshapes[0][3].score * 1000)
             if DataManager.KeyMapping[8] != 0:
                 InputController.HeadTracking(DataManager.KeyMapping[8], result.face_landmarks[0])
-            if DataManager.KeyMapping[9] != 0:
-                InputController.EyeTracking(result.face_blendshapes[0])
         if abs(result.face_landmarks[0][11].y * 480 - result.face_landmarks[0][16].y * 480) > 30 and (
                 result.face_blendshapes[0][1].score + result.face_blendshapes[0][
             2].score) * 1000 > 200 and not ReleaseFlag:
@@ -53,7 +55,7 @@ def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timest
         elif abs(result.face_landmarks[0][11].y * 480 - result.face_landmarks[0][16].y * 480) > 30 and (
                 result.face_blendshapes[0][1].score + result.face_blendshapes[0][2].score) * 1000 < 200 and ReleaseFlag:
             ReleaseFlag = False
-    lock = False
+    lock -= 1
 
 
 options = FaceLandmarkerOptions(
@@ -103,8 +105,8 @@ def DetectFaceLandmarks():
                 mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
                 if not DataManager.IsMinimized:
                     DataManager.Frame = frame
-                if not lock:
-                    lock = True
+                if lock < 2:
+                    lock += 1
                     landmarker.detect_async(mp_image, int(ms))
             key = cv2.waitKey(1)
             if key == ord('q') or DataManager.KeyMapping[10] == 1:

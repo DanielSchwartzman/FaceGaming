@@ -1,6 +1,11 @@
+import time
+
 import win32api
 import win32con
 import keyboard
+import win32gui
+
+import DataManager
 
 ACCEPTABLE_MOUTH_SCORE = 200
 ACCEPTABLE_EYE_WIDE_SCORE = 35
@@ -109,7 +114,19 @@ def BrowsUp(Key, Score):
         InputFlagArray[6] = False
 
 
+currX = 32767
+currY = 32767
+
+saveX = currX
+saveY = currY
+
+x_res = win32api.GetSystemMetrics(0)
+y_res = win32api.GetSystemMetrics(1)
+
+
 def HeadTrackingForMouse(Landmarks):
+    global currX, currY, saveX, saveY, x_res, y_res
+    save = DataManager.WorkingThread
     faceCenterX = (Landmarks[123].x + Landmarks[352].x) / 2
     faceCenterY = (Landmarks[152].y + Landmarks[10].y) / 2
 
@@ -128,7 +145,7 @@ def HeadTrackingForMouse(Landmarks):
 
     i = 0
     j = 0
-    if abs(xDiff) >= 8 or abs(yDiff) >= 8:
+    if abs(xDiff) >= 15 or abs(yDiff) >= 15:
         while i != xDiff or j != yDiff:
             if i != xDiff:
                 win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, xChange, 0)
@@ -136,6 +153,42 @@ def HeadTrackingForMouse(Landmarks):
             if j != yDiff:
                 win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, yChange)
                 j += yChange
+            time.sleep(0.0002)
+        flags, hcursor, (x, y) = win32gui.GetCursorInfo()
+        currX = int(65535 * x / x_res)
+        currY = int(65535 * y / y_res)
+        saveX = currX + xDiff * 250
+        saveY = currY + yDiff * 250
+    else:
+        currPointX = currX + xDiff * 300
+        currPointY = currY + yDiff * 300
+        i = saveX
+        j = saveY
+
+        if saveX > currPointX:
+            xChange = -1
+        elif saveX < currPointX:
+            xChange = 1
+        else:
+            xChange = 0
+
+        if saveY > currPointY:
+            yChange = -1
+        elif saveY < currPointY:
+            yChange = 1
+        else:
+            yChange = 0
+
+        while i != currPointX or j != currPointY:
+            if i != currPointX:
+                win32api.mouse_event(win32con.MOUSEEVENTF_ABSOLUTE | win32con.MOUSEEVENTF_MOVE, i, j)
+                i += xChange
+            if j != currPointY:
+                win32api.mouse_event(win32con.MOUSEEVENTF_ABSOLUTE | win32con.MOUSEEVENTF_MOVE, i, j)
+                j += yChange
+
+        saveX = i
+        saveY = j
 
 
 def HeadTrackingForMovement(Type, Landmarks):
@@ -174,44 +227,3 @@ def HeadTracking(Type, Landmarks):
         HeadTrackingForMouse(Landmarks)
     else:
         HeadTrackingForMovement(Type, Landmarks)
-
-
-LeftCal = False
-RightCal = False
-UpCal = False
-DownCal = False
-
-UpTrig = 0
-DownTrig = 0
-LeftTrig = 0
-RightTrig = 0
-
-
-def EyeTracking(BlendShapes):
-    global LeftCal, RightCal, UpCal, DownCal, UpTrig, DownTrig, LeftTrig, RightTrig
-    if keyboard.is_pressed("up"):
-        UpTrig = BlendShapes[17].score * 100
-        UpCal = True
-    if keyboard.is_pressed("down"):
-        DownTrig = BlendShapes[11].score * 100
-        DownCal = True
-    if keyboard.is_pressed("left"):
-        LeftTrig = BlendShapes[13].score * 100
-        LeftCal = True
-    if keyboard.is_pressed("right"):
-        RightTrig = BlendShapes[14].score * 100
-        RightCal = True
-
-    print(BlendShapes[11].score * 100, BlendShapes[17].score * 100)
-    print(BlendShapes[13].score * 100, BlendShapes[14].score * 100)
-
-    if UpCal and DownCal and LeftCal and RightCal:
-        if BlendShapes[13].score * 100 < LeftTrig:
-            win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, -10, 0)
-        elif BlendShapes[14].score * 100 < RightTrig:
-            win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 10, 0)
-
-        if BlendShapes[17].score * 100 > UpTrig:
-            win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, -10)
-        elif BlendShapes[11].score * 100 > DownTrig:
-            win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, 10)

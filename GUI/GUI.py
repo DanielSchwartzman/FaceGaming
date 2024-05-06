@@ -359,7 +359,7 @@ class Ui_MainWindow(object):
         self.CB_MouseMethod.setCurrentText(_translate("MainWindow", "Default"))
         self.CB_MouseMethod.setItemText(0, _translate("MainWindow", "Default"))
         self.CB_MouseMethod.setItemText(1, _translate("MainWindow", "Head Tracking"))
-        self.CB_MouseMethod.setItemText(2, _translate("MainWindow", "Eye Tracking"))
+        self.CB_MouseMethod.setItemText(2, _translate("MainWindow", "Eye Tracking (Under development)"))
         self.LBL_LeftClick.setText(_translate("MainWindow", "Left Click:"))
         self.CB_LeftClick.setItemText(0, _translate("MainWindow", "Default"))
         self.CB_LeftClick.setItemText(1, _translate("MainWindow", "Face Left"))
@@ -405,6 +405,7 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.CB_Interact.currentIndexChanged.connect(self.InteractSelect)
         self.CB_MovemetMethod.currentIndexChanged.connect(self.MovementSelect)
         self.BTN_SaveSettings.clicked.connect(self.SaveSettings)
+        self.CB_MouseMethod.model().setData(self.CB_MouseMethod.model().index(2, 0), QtCore.QVariant(0), QtCore.Qt.UserRole-1)
 
         self.WaitForCameraTimer = QTimer()
         self.WaitForCameraTimer.setInterval(1000)
@@ -434,6 +435,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         toast.applyPreset(ToastPreset.ERROR)  # Apply style preset
         toast.show()
 
+    def show_TodoToast(self):
+        toast = Toast(self)
+        toast.setDuration(5000)  # Hide after 5 seconds
+        toast.setTitle('Feature unavailable')
+        toast.setText('Feature is under development')
+        toast.applyPreset(ToastPreset.ERROR)  # Apply style preset
+        toast.show()
+
     def MovementSelect(self):
         if DataManager.KeyMapping[8] > 0 and self.WASD == 0 and self.CB_MovemetMethod.currentIndex() > 0:
             self.CB_MovemetMethod.setCurrentIndex(self.WASD)
@@ -455,13 +464,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 DataManager.KeyMapping[8] = 3
                 self.Mouse = self.CB_MouseMethod.currentIndex()
         else:
+            if self.CB_MouseMethod.currentIndex() == 2:
+                self.show_TodoToast()
+                self.CB_MouseMethod.setCurrentIndex(self.Mouse)
+                return
             if self.Mouse == 1:
                 DataManager.KeyMapping[8] = 0
             if self.CB_MouseMethod.currentIndex() == 0:
-                DataManager.KeyMapping[9] = 0
                 DataManager.KeyMapping[8] = 0
-            else:
-                DataManager.KeyMapping[9] = 1
             self.Mouse = self.CB_MouseMethod.currentIndex()
 
     def InteractSelect(self):
