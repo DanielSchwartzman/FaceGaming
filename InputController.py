@@ -1,10 +1,7 @@
-import time
-
 import win32api
 import win32con
 import keyboard
 import win32gui
-
 import DataManager
 
 ACCEPTABLE_MOUTH_SCORE = 200
@@ -124,9 +121,8 @@ x_res = win32api.GetSystemMetrics(0)
 y_res = win32api.GetSystemMetrics(1)
 
 
-def HeadTrackingForMouse(Landmarks):
+def HeadTrackingForMouse(Landmarks, flag):
     global currX, currY, saveX, saveY, x_res, y_res
-    save = DataManager.WorkingThread
     faceCenterX = (Landmarks[123].x + Landmarks[352].x) / 2
     faceCenterY = (Landmarks[152].y + Landmarks[10].y) / 2
 
@@ -153,22 +149,31 @@ def HeadTrackingForMouse(Landmarks):
             if j != yDiff:
                 win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, yChange)
                 j += yChange
-            time.sleep(0.0002)
-        flags, hcursor, (x, y) = win32gui.GetCursorInfo()
-        currX = int(65535 * x / x_res)
-        currY = int(65535 * y / y_res)
-        saveX = currX + xDiff * 250
-        saveY = currY + yDiff * 250
+
+        if not flag:
+            flags, hcursor, (x, y) = win32gui.GetCursorInfo()
+            saveX = int(65535 * x / x_res)
+            saveY = int(65535 * y / y_res)
+            currX = saveX
+            currY = saveY
     else:
-        currPointX = currX + xDiff * 300
-        currPointY = currY + yDiff * 300
+        if not flag:
+            currPointX = currX + xDiff * 300
+            currPointY = currY + yDiff * 300
+        else:
+            currX = 32767
+            currY = 32767
+
+            currPointX = 32767 + xDiff * 300
+            currPointY = 32767 + yDiff * 300
+
         i = saveX
         j = saveY
 
         if saveX > currPointX:
-            xChange = -1
+            xChange = -2
         elif saveX < currPointX:
-            xChange = 1
+            xChange = 2
         else:
             xChange = 0
 
@@ -186,7 +191,6 @@ def HeadTrackingForMouse(Landmarks):
             if j != currPointY:
                 win32api.mouse_event(win32con.MOUSEEVENTF_ABSOLUTE | win32con.MOUSEEVENTF_MOVE, i, j)
                 j += yChange
-
         saveX = i
         saveY = j
 
@@ -222,8 +226,8 @@ def HeadTrackingForMovement(Type, Landmarks):
         keyboard.release('d')
 
 
-def HeadTracking(Type, Landmarks):
+def HeadTracking(Type, Landmarks, flag):
     if Type == 3:
-        HeadTrackingForMouse(Landmarks)
+        HeadTrackingForMouse(Landmarks, flag)
     else:
         HeadTrackingForMovement(Type, Landmarks)
