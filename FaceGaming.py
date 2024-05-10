@@ -12,7 +12,7 @@ import FaceDetector
 # 6 = "Eye wide",
 # 7 = "Brows up"
 # 8 = "FaceTracking"
-# 9 = "EyeTracking" (Not yet implemented)
+# 9 = "Activation Flag"
 # 10 = "Process state flag on/off"
 # 11 = "Num of available cameras"
 # 12 = "Current Chosen Camera"

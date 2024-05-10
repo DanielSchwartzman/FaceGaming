@@ -1,6 +1,7 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
+from GUI import ToggleButton
 import DbManager
 import DataManager
 import cv2
@@ -150,21 +151,6 @@ class Ui_MainWindow(object):
         self.CB_Interact.addItem("")
         self.CB_Interact.addItem("")
         self.formLayout.setWidget(3, QtWidgets.QFormLayout.ItemRole.FieldRole, self.CB_Interact)
-        self.IMG_ActivationBanner_2 = QtWidgets.QLabel(parent=self.tab)
-        self.IMG_ActivationBanner_2.setGeometry(QtCore.QRect(10, 280, 421, 41))
-        self.IMG_ActivationBanner_2.setText("")
-        self.IMG_ActivationBanner_2.setPixmap(QtGui.QPixmap("./res/Icons/ActivationBanner.png"))
-        self.IMG_ActivationBanner_2.setScaledContents(True)
-        self.IMG_ActivationBanner_2.setObjectName("IMG_ActivationBanner_2")
-        self.LBL_ActivationText = QtWidgets.QLabel(parent=self.tab)
-        self.LBL_ActivationText.setGeometry(QtCore.QRect(20, 290, 391, 20))
-        font = QtGui.QFont()
-        font.setFamily("Poppins SemiBold")
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
-        self.LBL_ActivationText.setFont(font)
-        self.LBL_ActivationText.setObjectName("LBL_ActivationText")
         self.tabWidget.addTab(self.tab, "")
         self.tab_2 = QtWidgets.QWidget()
         self.tab_2.setEnabled(True)
@@ -254,10 +240,10 @@ class Ui_MainWindow(object):
         self.IMG_ActivationBanner.setScaledContents(True)
         self.IMG_ActivationBanner.setObjectName("IMG_ActivationBanner")
         self.LBL_ActivationText_2 = QtWidgets.QLabel(parent=self.tab_2)
-        self.LBL_ActivationText_2.setGeometry(QtCore.QRect(20, 290, 391, 20))
+        self.LBL_ActivationText_2.setGeometry(QtCore.QRect(20, 280, 391, 40))
         font = QtGui.QFont()
         font.setFamily("Poppins SemiBold")
-        font.setPointSize(12)
+        font.setPointSize(8)
         font.setBold(True)
         font.setWeight(75)
         self.LBL_ActivationText_2.setFont(font)
@@ -305,7 +291,7 @@ class Ui_MainWindow(object):
         self.CB_InputDevice.setObjectName("CB_InputDevice")
         self.tabWidget.addTab(self.Tab3, "")
         self.LogoPlaceholder = QtWidgets.QLabel(parent=self.centralwidget)
-        self.LogoPlaceholder.setGeometry(QtCore.QRect(100, 10, 251, 61))
+        self.LogoPlaceholder.setGeometry(QtCore.QRect(10, 10, 251, 61))
         self.LogoPlaceholder.setText("")
         self.LogoPlaceholder.setPixmap(QtGui.QPixmap("./res/Icons/FaceGamingDisplayLogo.png"))
         self.LogoPlaceholder.setObjectName("LogoPlaceholder")
@@ -353,7 +339,6 @@ class Ui_MainWindow(object):
         self.CB_Interact.setItemText(5, _translate("MainWindow", "Mouth Open"))
         self.CB_Interact.setItemText(6, _translate("MainWindow", "Eye Wide"))
         self.CB_Interact.setItemText(7, _translate("MainWindow", "Brows Up"))
-        self.LBL_ActivationText.setText(_translate("MainWindow", "   To toggle controls : Brows Down + Mouth Open"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "Keyboard Configuration"))
         self.LBL_MouseMethod.setText(_translate("MainWindow", "Mouse Movement method:"))
         self.CB_MouseMethod.setCurrentText(_translate("MainWindow", "Default"))
@@ -378,7 +363,8 @@ class Ui_MainWindow(object):
         self.CB_RightClick.setItemText(5, _translate("MainWindow", "Mouth Open"))
         self.CB_RightClick.setItemText(6, _translate("MainWindow", "Eye Wide"))
         self.CB_RightClick.setItemText(7, _translate("MainWindow", "Brows Up"))
-        self.LBL_ActivationText_2.setText(_translate("MainWindow", "   To toggle controls : Brows Down + Mouth Open"))
+        self.LBL_ActivationText_2.setText(_translate("MainWindow", "         To toggle between In-game/Menu controls for Head-Tracking:\n"
+                                                                   "                                         Brows Down + Mouth Open"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Mouse Configuration"))
         self.LBL_SaveSettings.setText(_translate("MainWindow", "Save settings:"))
         self.LBL_InputDevice.setText(_translate("MainWindow", "Input Device:"))
@@ -416,6 +402,36 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.DisplayImageFromThreadAt30FpsTimer.setInterval(33)
         self.DisplayImageFromThreadAt30FpsTimer.timeout.connect(self.ShowCameraOutput)
         self.DisplayImageFromThreadAt30FpsTimer.start()
+
+        self.BTN_ActivationToggle = ToggleButton.QToggle(parent=self.centralwidget)
+        self.BTN_ActivationToggle.setText('Control Disabled')
+        self.BTN_ActivationToggle.setFixedHeight(22)
+        self.BTN_ActivationToggle.setGeometry(QtCore.QRect(265, 33, 300, 0))
+        font = QtGui.QFont("Poppins SemiBold", 11)
+        font.setBold(True)
+        font.setWeight(75)
+        self.BTN_ActivationToggle.setFont(font)
+        self.BTN_ActivationToggle.setStyleSheet("QToggle{"
+                                "qproperty-bg_color:#FAA;"
+                                "qproperty-circle_color:#DDF;"
+                                "qproperty-active_color:#AAF;"
+                                "qproperty-disabled_color:#777;"
+                                "qproperty-text_color:#B33;}")
+        DataManager.KeyMapping[9] = 0
+        self.BTN_ActivationToggle.setDuration(200)
+        self.BTN_ActivationToggle.setChecked(False)
+        self.BTN_ActivationToggle.clicked.connect(self.ToggleClicked)
+
+    def ToggleClicked(self):
+        Toggle = False
+        if DataManager.KeyMapping[9] == 0:
+            DataManager.KeyMapping[9] = 1
+            Toggle = True
+            self.BTN_ActivationToggle.setText('Control Enabled')
+        else:
+            DataManager.KeyMapping[9] = 0
+            self.BTN_ActivationToggle.setText('Control Disabled')
+        self.BTN_ActivationToggle.setChecked(Toggle)
 
     def changeEvent(self, event):
         if event.type() == QEvent.WindowStateChange:
@@ -598,9 +614,6 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif Save[8] == 3:
             self.CB_MouseMethod.setCurrentIndex(1)
             self.WASD = Save[8]
-        if Save[9] == 1:
-            self.CB_MouseMethod.setCurrentIndex(2)
-            self.Mouse = 2
 
 
 def GUI_Main():

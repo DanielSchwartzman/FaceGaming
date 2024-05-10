@@ -121,7 +121,7 @@ x_res = win32api.GetSystemMetrics(0)
 y_res = win32api.GetSystemMetrics(1)
 
 
-def HeadTrackingForMouse(Landmarks, flag):
+def HeadTrackingForMouse(Landmarks, IsInGame):
     global currX, currY, saveX, saveY, x_res, y_res
     faceCenterX = (Landmarks[123].x + Landmarks[352].x) / 2
     faceCenterY = (Landmarks[152].y + Landmarks[10].y) / 2
@@ -150,14 +150,14 @@ def HeadTrackingForMouse(Landmarks, flag):
                 win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, yChange)
                 j += yChange
 
-        if not flag:
+        if not IsInGame:
             flags, hcursor, (x, y) = win32gui.GetCursorInfo()
             saveX = int(65535 * x / x_res)
             saveY = int(65535 * y / y_res)
             currX = saveX
             currY = saveY
     elif abs(xDiff) >= 1 or abs(yDiff) >= 1:
-        if not flag:
+        if not IsInGame:
             currPointX = currX + xDiff * 300
             currPointY = currY + yDiff * 300
         else:
@@ -190,7 +190,6 @@ def HeadTrackingForMouse(Landmarks, flag):
             if j != currPointY:
                 win32api.mouse_event(win32con.MOUSEEVENTF_ABSOLUTE | win32con.MOUSEEVENTF_MOVE, i, j)
                 j += yChange
-            print(i, currPointX, xChange)
         saveX = i
         saveY = j
 
