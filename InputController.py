@@ -156,7 +156,7 @@ def HeadTrackingForMouse(Landmarks, flag):
             saveY = int(65535 * y / y_res)
             currX = saveX
             currY = saveY
-    else:
+    elif abs(xDiff) >= 1 or abs(yDiff) >= 1:
         if not flag:
             currPointX = currX + xDiff * 300
             currPointY = currY + yDiff * 300
@@ -167,13 +167,10 @@ def HeadTrackingForMouse(Landmarks, flag):
             currPointX = 32767 + xDiff * 300
             currPointY = 32767 + yDiff * 300
 
-        i = saveX
-        j = saveY
-
         if saveX > currPointX:
-            xChange = -2
+            xChange = -1
         elif saveX < currPointX:
-            xChange = 2
+            xChange = 1
         else:
             xChange = 0
 
@@ -184,6 +181,8 @@ def HeadTrackingForMouse(Landmarks, flag):
         else:
             yChange = 0
 
+        i = saveX
+        j = saveY
         while i != currPointX or j != currPointY:
             if i != currPointX:
                 win32api.mouse_event(win32con.MOUSEEVENTF_ABSOLUTE | win32con.MOUSEEVENTF_MOVE, i, j)
@@ -191,6 +190,7 @@ def HeadTrackingForMouse(Landmarks, flag):
             if j != currPointY:
                 win32api.mouse_event(win32con.MOUSEEVENTF_ABSOLUTE | win32con.MOUSEEVENTF_MOVE, i, j)
                 j += yChange
+            print(i, currPointX, xChange)
         saveX = i
         saveY = j
 
