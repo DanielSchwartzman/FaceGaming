@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="./res/Icons/FaceGamingDisplayLogo.png" width="437.5" height="125">
+</p>
+
 # About FaceGaming:
 FaceGaming is Python project aiming to allow physically impaired people to comfortably and easily play videogames by using their face and facial expressions as input for in game events.
 Made as capstone project for my B.Sc in Computer Science studies at Afeka College of Engineering in Tel-Aviv.
