@@ -2,19 +2,31 @@
   <img src="./res/Icons/FaceGamingDisplayLogo.png" width="437.5" height="125">
 </p>
 
-# About FaceGaming:
+# About FaceGaming
 FaceGaming is Python project aiming to allow physically impaired people to comfortably and easily play videogames by using their face and facial expressions as input for in game events.
 Made as capstone project for my B.Sc in Computer Science studies at Afeka College of Engineering in Tel-Aviv.
 
-## Installation:
+## Usage and Demonstration
 
-### Executable:
+## Installation
+You can either download the Executable version or the Python script
+
+### Executable version:
 Download the [release](https://github.com/DanielSchwartzman/FaceGaming/releases/tag/V1) version and simply launch the .exe, Enjoy!
 
-### Python Script Executable:
-Clone this repository or Download as zip, Download and install [Python 3.11](https://www.python.org/downloads/)
+### Python Script:
+
+Clone this repository
+```
+$ git clone https://github.com/DanielSchwartzman/FaceGaming
+```
+
+Download and install [Python 3.11](https://www.python.org/downloads/)
 
 #### Install the following libraries:
+```
+$ python -m pip install <Library Name>
+```
 * opencv-python 
 * mediapipe
 * keyboard
