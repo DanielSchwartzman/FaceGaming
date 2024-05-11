@@ -2,14 +2,15 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 from PyQt6.QtCore import *
 from PyQt6.QtGui import *
 from GUI import ToggleButton
-import DbManager
-import DataManager
+from Utils import DataManager, DbManager
 import cv2
 from PyQt6.QtCore import Qt
 from pyqttoast import Toast, ToastPreset
 
 
+############################################################################
 class Ui_MainWindow(object):
+    # Parameters that store the current index a given combobox is on, used to switch back indexes on a failed(restricted) option change
     Mouse = 0
     LeftClick = 0
     RightClick = 0
@@ -19,6 +20,7 @@ class Ui_MainWindow(object):
     WASD = 0
     MainWindow = 0
 
+    ############################################################################
     def setupUi(self, MainWindow):
         self.MainWindow = MainWindow
         MainWindow.setObjectName("MainWindow")
@@ -303,7 +305,9 @@ class Ui_MainWindow(object):
         self.retranslateUi(MainWindow)
         self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+    ############################################################################
 
+    ############################################################################
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "FaceGaming"))
@@ -363,17 +367,64 @@ class Ui_MainWindow(object):
         self.CB_RightClick.setItemText(5, _translate("MainWindow", "Mouth Open"))
         self.CB_RightClick.setItemText(6, _translate("MainWindow", "Eye Wide"))
         self.CB_RightClick.setItemText(7, _translate("MainWindow", "Brows Up"))
-        self.LBL_ActivationText_2.setText(_translate("MainWindow", "         To toggle between In-game/Menu controls for Head-Tracking:\n"
-                                                                   "                                         Brows Down + Mouth Open"))
+        self.LBL_ActivationText_2.setText(
+            _translate("MainWindow", "         To toggle between In-game/Menu controls for Head-Tracking:\n"
+                                     "                                         Brows Down + Mouth Open"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Mouse Configuration"))
         self.LBL_SaveSettings.setText(_translate("MainWindow", "Save settings:"))
         self.LBL_InputDevice.setText(_translate("MainWindow", "Input Device:"))
         self.BTN_SaveSettings.setText(_translate("MainWindow", "Save Settings"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.Tab3), _translate("MainWindow", "Options"))
+    ############################################################################
+############################################################################
 
 
+############################################################################
 # Main window class
 class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
+    """
+    Class which represents the main GUI windows
+
+    ToggleClicked : Used as the "OnClick" for the FaceGaming control toggle, enables or disables ALL facegaming related controls
+
+    changeEvent : PyQT6 overridden function, used to determine when the GUI window is minimized
+
+    closeEvent : PyQT6 overridden function, used to determine when the GUI window is closed
+
+    show_toast : Shows an error toast when trying to select an option that is already in use
+
+    show_TodoToast: Show an error toast when trying to select "Eye Tracking", currently work in progress
+
+    MovementSelect: Used as the "OnIndexChange", changes the current input method for "Keyboard Movement(WASD)"
+
+    MouseSelect :   Used as the "OnIndexChange", changes the current input method for "Mouse Movement"
+
+    InteractSelect : Used as the "OnIndexChange", changes the current input method for "Keyboard interact(Standard 'E')"
+
+    CtrlSelect : Used as the "OnIndexChange", changes the current input method for "Keyboard left control"
+
+    SpaceSelect : Used as the "OnIndexChange", changes the current input method for "Keyboard space"
+
+    LeftClickSelect : Used as the "OnIndexChange", changes the current input method for "Mouse left click"
+
+    RightClickSelect : Used as the "OnIndexChange", changes the current input method for "Mouse right click"
+
+    ShowCameraOutput : Used on a timer capped at roughly 30 fps, Displays the last image the camera has captured on the GUI window
+
+    ChangeCamInput : Used as the "OnIndexChange", changes the input camera for the FaceDetection module
+
+    UpdateCameraCB : Used ONCE after the FaceDetection module gives a greenlight(DataManager.IsCamReady) to display all
+    available cameras and enable switching between them
+
+    SaveSettings : Used as the "OnClick" for the save setting button, signals the DbManager to store the current mapping
+    array in the MongoDB Database
+
+    LoadSettings : Used on application startup, loads the last saved mapping from the Database
+
+    ComboBoxUpdate : Used in conjunction with LoadSettings, updates the current indexes of the ComboBoxes to display the
+    saved setting in the DataBase
+    """
+    ############################################################################
     def __init__(self, *args, obj=None, **kwargs):
         super(MainWindow, self).__init__(*args, **kwargs)
         self.setupUi(self)
@@ -391,7 +442,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         self.CB_Interact.currentIndexChanged.connect(self.InteractSelect)
         self.CB_MovemetMethod.currentIndexChanged.connect(self.MovementSelect)
         self.BTN_SaveSettings.clicked.connect(self.SaveSettings)
-        self.CB_MouseMethod.model().setData(self.CB_MouseMethod.model().index(2, 0), QtCore.QVariant(0), QtCore.Qt.UserRole-1)
+        self.CB_MouseMethod.model().setData(self.CB_MouseMethod.model().index(2, 0), QtCore.QVariant(0),
+                                            QtCore.Qt.UserRole - 1)
 
         self.WaitForCameraTimer = QTimer()
         self.WaitForCameraTimer.setInterval(1000)
@@ -412,16 +464,18 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         font.setWeight(75)
         self.BTN_ActivationToggle.setFont(font)
         self.BTN_ActivationToggle.setStyleSheet("QToggle{"
-                                "qproperty-bg_color:#FAA;"
-                                "qproperty-circle_color:#DDF;"
-                                "qproperty-active_color:#AAF;"
-                                "qproperty-disabled_color:#777;"
-                                "qproperty-text_color:#B33;}")
+                                                "qproperty-bg_color:#FAA;"
+                                                "qproperty-circle_color:#DDF;"
+                                                "qproperty-active_color:#AAF;"
+                                                "qproperty-disabled_color:#777;"
+                                                "qproperty-text_color:#B33;}")
         DataManager.KeyMapping[9] = 0
         self.BTN_ActivationToggle.setDuration(200)
         self.BTN_ActivationToggle.setChecked(False)
         self.BTN_ActivationToggle.clicked.connect(self.ToggleClicked)
+    ############################################################################
 
+    ############################################################################
     def ToggleClicked(self):
         Toggle = False
         if DataManager.KeyMapping[9] == 0:
@@ -432,17 +486,23 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             DataManager.KeyMapping[9] = 0
             self.BTN_ActivationToggle.setText('Control Disabled')
         self.BTN_ActivationToggle.setChecked(Toggle)
+    ############################################################################
 
+    ############################################################################
     def changeEvent(self, event):
         if event.type() == QEvent.WindowStateChange:
             if event.oldState() and Qt.WindowMinimized:
                 DataManager.IsMinimized = False
             elif event.oldState() == Qt.WindowNoState or self.windowState() == Qt.WindowMaximized:
                 DataManager.IsMinimized = True
+    ############################################################################
 
+    ############################################################################
     def closeEvent(self, event):
         DataManager.KeyMapping[10] = 1
+    ############################################################################
 
+    ############################################################################
     def show_toast(self):
         toast = Toast(self)
         toast.setDuration(5000)  # Hide after 5 seconds
@@ -450,7 +510,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         toast.setText('The selected facial expression is already used')
         toast.applyPreset(ToastPreset.ERROR)  # Apply style preset
         toast.show()
+    ############################################################################
 
+    ############################################################################
     def show_TodoToast(self):
         toast = Toast(self)
         toast.setDuration(5000)  # Hide after 5 seconds
@@ -458,7 +520,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         toast.setText('Feature is under development')
         toast.applyPreset(ToastPreset.ERROR)  # Apply style preset
         toast.show()
+    ############################################################################
 
+    ############################################################################
     def MovementSelect(self):
         if DataManager.KeyMapping[8] > 0 and self.WASD == 0 and self.CB_MovemetMethod.currentIndex() > 0:
             self.CB_MovemetMethod.setCurrentIndex(self.WASD)
@@ -470,9 +534,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             elif DataManager.KeyMapping[8] == 0 or DataManager.KeyMapping[8] == 1 or DataManager.KeyMapping[8] == 2:
                 DataManager.KeyMapping[8] = self.CB_MovemetMethod.currentIndex()
                 self.WASD = self.CB_MovemetMethod.currentIndex()
+    ############################################################################
 
+    ############################################################################
     def MouseSelect(self):
-        if self.CB_MouseMethod.currentIndex() == 1 or ((DataManager.KeyMapping[1] != 0 or DataManager.KeyMapping[2] != 0) and self.CB_MouseMethod.currentIndex() == 1):
+        if self.CB_MouseMethod.currentIndex() == 1 or ((
+                                                               DataManager.KeyMapping[1] != 0 or DataManager.KeyMapping[
+                                                           2] != 0) and self.CB_MouseMethod.currentIndex() == 1):
             if DataManager.KeyMapping[8] > 0 or (DataManager.KeyMapping[1] != 0 or DataManager.KeyMapping[2] != 0):
                 self.CB_MouseMethod.setCurrentIndex(self.Mouse)
                 self.MainWindow.show_toast()
@@ -489,10 +557,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             if self.CB_MouseMethod.currentIndex() == 0:
                 DataManager.KeyMapping[8] = 0
             self.Mouse = self.CB_MouseMethod.currentIndex()
+    ############################################################################
 
+    ############################################################################
     def InteractSelect(self):
         if DataManager.KeyMapping[
-            self.CB_Interact.currentIndex()] > 0 and self.CB_Interact.currentIndex() != self.Interact and self.CB_Interact.currentIndex() != 0 or (DataManager.KeyMapping[8] == 3 and 0 < self.CB_Interact.currentIndex() <= 2):
+            self.CB_Interact.currentIndex()] > 0 and self.CB_Interact.currentIndex() != self.Interact and self.CB_Interact.currentIndex() != 0 or (
+                DataManager.KeyMapping[8] == 3 and 0 < self.CB_Interact.currentIndex() <= 2):
             self.CB_Interact.setCurrentIndex(self.Interact)
             self.MainWindow.show_toast()
             return
@@ -500,10 +571,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             DataManager.KeyMapping[self.Interact] = 0
         DataManager.KeyMapping[self.CB_Interact.currentIndex()] = 5
         self.Interact = self.CB_Interact.currentIndex()
+    ############################################################################
 
+    ############################################################################
     def CtrlSelect(self):
         if DataManager.KeyMapping[
-            self.CB_Ctrl.currentIndex()] > 0 and self.CB_Ctrl.currentIndex() != self.Ctrl and self.CB_Ctrl.currentIndex() != 0 or (DataManager.KeyMapping[8] == 3 and 0 < self.CB_Ctrl.currentIndex() <= 2):
+            self.CB_Ctrl.currentIndex()] > 0 and self.CB_Ctrl.currentIndex() != self.Ctrl and self.CB_Ctrl.currentIndex() != 0 or (
+                DataManager.KeyMapping[8] == 3 and 0 < self.CB_Ctrl.currentIndex() <= 2):
             self.CB_Ctrl.setCurrentIndex(self.Ctrl)
             self.MainWindow.show_toast()
             return
@@ -511,10 +585,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             DataManager.KeyMapping[self.Ctrl] = 0
         DataManager.KeyMapping[self.CB_Ctrl.currentIndex()] = 4
         self.Ctrl = self.CB_Ctrl.currentIndex()
+    ############################################################################
 
+    ############################################################################
     def SpaceSelect(self):
         if DataManager.KeyMapping[
-            self.CB_Spacebar.currentIndex()] > 0 and self.CB_Spacebar.currentIndex() != self.Space and self.CB_Spacebar.currentIndex() != 0 or (DataManager.KeyMapping[8] == 3 and 0 < self.CB_Spacebar.currentIndex() <= 2):
+            self.CB_Spacebar.currentIndex()] > 0 and self.CB_Spacebar.currentIndex() != self.Space and self.CB_Spacebar.currentIndex() != 0 or (
+                DataManager.KeyMapping[8] == 3 and 0 < self.CB_Spacebar.currentIndex() <= 2):
             self.CB_Spacebar.setCurrentIndex(self.Space)
             self.MainWindow.show_toast()
             return
@@ -522,10 +599,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             DataManager.KeyMapping[self.Space] = 0
         DataManager.KeyMapping[self.CB_Spacebar.currentIndex()] = 3
         self.Space = self.CB_Spacebar.currentIndex()
+    ############################################################################
 
+    ############################################################################
     def LeftClickSelect(self):
         if DataManager.KeyMapping[
-            self.CB_LeftClick.currentIndex()] > 0 and self.CB_LeftClick.currentIndex() != self.LeftClick and self.CB_LeftClick.currentIndex() != 0 or (DataManager.KeyMapping[8] == 3 and 0 < self.CB_LeftClick.currentIndex() <= 2):
+            self.CB_LeftClick.currentIndex()] > 0 and self.CB_LeftClick.currentIndex() != self.LeftClick and self.CB_LeftClick.currentIndex() != 0 or (
+                DataManager.KeyMapping[8] == 3 and 0 < self.CB_LeftClick.currentIndex() <= 2):
             self.CB_LeftClick.setCurrentIndex(self.LeftClick)
             self.MainWindow.show_toast()
             return
@@ -533,10 +613,13 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         if self.CB_LeftClick.currentIndex() != self.LeftClick:
             DataManager.KeyMapping[self.LeftClick] = 0
         self.LeftClick = self.CB_LeftClick.currentIndex()
+    ############################################################################
 
+    ############################################################################
     def RightClickSelect(self):
         if DataManager.KeyMapping[
-            self.CB_RightClick.currentIndex()] > 0 and self.CB_RightClick.currentIndex() != self.RightClick and self.CB_RightClick.currentIndex() != 0 or (DataManager.KeyMapping[8] == 3 and 0 < self.CB_RightClick.currentIndex() <= 2):
+            self.CB_RightClick.currentIndex()] > 0 and self.CB_RightClick.currentIndex() != self.RightClick and self.CB_RightClick.currentIndex() != 0 or (
+                DataManager.KeyMapping[8] == 3 and 0 < self.CB_RightClick.currentIndex() <= 2):
             self.CB_RightClick.setCurrentIndex(self.RightClick)
             self.MainWindow.show_toast()
             return
@@ -544,7 +627,9 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
             DataManager.KeyMapping[self.RightClick] = 0
         DataManager.KeyMapping[self.CB_RightClick.currentIndex()] = 2
         self.RightClick = self.CB_RightClick.currentIndex()
+    ############################################################################
 
+    ############################################################################
     def ShowCameraOutput(self):
         if len(DataManager.Frame) > 0:
             if not DataManager.IsMinimized:
@@ -554,10 +639,14 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                                            QImage.Format_RGB888)
                 Pic = ConvertToQtFormat.scaled(300, 300, Qt.KeepAspectRatio)
                 self.LBL_CameraOutput.setPixmap(QPixmap.fromImage(Pic))
+    ############################################################################
 
+    ############################################################################
     def ChangeCamInput(self):
         DataManager.KeyMapping[12] = self.CB_InputDevice.currentIndex()
+    ############################################################################
 
+    ############################################################################
     def UpdateCameraCB(self):
         if DataManager.IsCamReady:
             DataManager.IsCamReady = False
@@ -568,26 +657,31 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
                 iterator += 1
             self.CB_InputDevice.currentIndexChanged.connect(self.ChangeCamInput)
             self.WaitForCameraTimer.stop()
+    ############################################################################
 
+    ############################################################################
     def SaveSettings(self):
         if self.IsFirstTime:
             self.Db.PostToDB(DataManager.KeyMapping)
         else:
             self.Db.UpdateDB(DataManager.user_id, DataManager.KeyMapping)
+    ############################################################################
 
+    ############################################################################
     def LoadSettings(self):
         Save = []
         results = self.Db.ReadFromDbById(DataManager.user_id)
         for result in results:
             Save = result["KeyMapping"]
         if len(Save) > 0:
-            print(Save)
             self.ComboBoxUpdate(Save)
             index = 0
             while index < 13:
                 DataManager.KeyMapping[index] = Save[index]
                 index += 1
+    ############################################################################
 
+    ############################################################################
     def ComboBoxUpdate(self, Save):
         index = 1
         while index < 8:
@@ -614,6 +708,8 @@ class MainWindow(QtWidgets.QMainWindow, Ui_MainWindow):
         elif Save[8] == 3:
             self.CB_MouseMethod.setCurrentIndex(1)
             self.WASD = Save[8]
+    ############################################################################
+############################################################################
 
 
 def GUI_Main():

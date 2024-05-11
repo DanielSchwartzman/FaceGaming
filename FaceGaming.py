@@ -1,26 +1,16 @@
 import threading
 import GUI.GUI as GUI
-import FaceDetector
-
-# DataManger.KeyMapping indexes correspond to:
-# 0 = "Default",
-# 1 = "Face Left",
-# 2 = "Face Right",
-# 3 = "Mouth Left",
-# 4 = "Mouth Right",
-# 5 = "Mouth Open",
-# 6 = "Eye wide",
-# 7 = "Brows up"
-# 8 = "FaceTracking"
-# 9 = "Activation Flag"
-# 10 = "Process state flag on/off"
-# 11 = "Num of available cameras"
-# 12 = "Current Chosen Camera"
+from Services import FaceDetector
 
 
+############################################################################
 def main():
+    # Run the face detection module on a separate thread
     threading.Thread(target=FaceDetector.DetectFaceLandmarks).start()
+
+    # Start GUI menu
     GUI.GUI_Main()
+############################################################################
 
 
 if __name__ == "__main__":

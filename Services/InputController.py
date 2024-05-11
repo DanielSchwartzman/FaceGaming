@@ -2,16 +2,44 @@ import win32api
 import win32con
 import keyboard
 import win32gui
-import DataManager
 
+############################################################################
+# Parameters used to gage the accuracy of the Facial gesture tracking
 ACCEPTABLE_MOUTH_SCORE = 200
 ACCEPTABLE_EYE_WIDE_SCORE = 35
 ACCEPTABLE_BROWS_SCORE = 300
 ACCEPTABLE_MOUTH_OPEN_SCORE = 25
 
+# An Array used to block repeated input and input "Spamming" of the program
 InputFlagArray = [False, False, False, False, False, False, False]
+############################################################################
+
+"""
+SendInputToPC : Gets a "Key" and a "ToPress" flag, depending on the given key number and flag, either press or unpress
+the desired button
+
+FaceLeft : Gages the accuracy of "Face looking left" event, and sends an input event depending on currently mapped Key
+
+FaceRight : Gages the accuracy of "Face looking right" event, and sends an input event depending on currently mapped Key
+
+MouthLeft : Gages the accuracy of "Mouth is moved to the left" event, and sends an input event depending on currently mapped Key
+
+MouthRight : Gages the accuracy of "Mouth is moved to the right" event, and sends an input event depending on currently mapped Key
+
+MouthOpen : Gages the accuracy of "Mouth is open" event, and sends an input event depending on currently mapped Key
+
+EyeWide : Gages the accuracy of "Eyes are open wide" event, and sends an input event depending on currently mapped Key
+
+BrowsUp : Gages the accuracy of "Both eyebrows are raised" event, and sends an input event depending on currently mapped Key
+
+HeadTrackingForMovement : Calculated the pitch and roll of the users head and maps it accordingly to the standard game movement keys(WASD)
+
+HeadTrackingForMouse : Calculates the pitch and yaw of the users head and maps it accordingly to the location of the mouse on screen.
+              **IMPORTANT** Consists of two modes, "Gaming" and "Menu" differentiated by the "IsInGame" flag
+"""
 
 
+############################################################################
 def SendInputToPC(Key, ToPress):
     match Key:
         case 1:
@@ -41,6 +69,10 @@ def SendInputToPC(Key, ToPress):
                 keyboard.release("e")
 
 
+############################################################################
+
+
+############################################################################
 def FaceLeft(Key, Landmarks):
     faceCenterX = (Landmarks[123].x + Landmarks[352].x) / 2
     xDiff = int((faceCenterX - Landmarks[4].x) * 1000)
@@ -53,6 +85,10 @@ def FaceLeft(Key, Landmarks):
         InputFlagArray[0] = False
 
 
+############################################################################
+
+
+############################################################################
 def FaceRight(Key, Landmarks):
     faceCenterX = (Landmarks[123].x + Landmarks[352].x) / 2
     xDiff = int((faceCenterX - Landmarks[4].x) * 1000)
@@ -65,6 +101,10 @@ def FaceRight(Key, Landmarks):
         InputFlagArray[1] = False
 
 
+############################################################################
+
+
+############################################################################
 def MouthLeft(Key, Score):
     if Score >= ACCEPTABLE_MOUTH_SCORE and InputFlagArray[2] == False:
         SendInputToPC(Key, True)
@@ -74,6 +114,10 @@ def MouthLeft(Key, Score):
         InputFlagArray[2] = False
 
 
+############################################################################
+
+
+############################################################################
 def MouthRight(Key, Score):
     if Score >= ACCEPTABLE_MOUTH_SCORE and InputFlagArray[3] == False:
         SendInputToPC(Key, True)
@@ -83,6 +127,10 @@ def MouthRight(Key, Score):
         InputFlagArray[3] = False
 
 
+############################################################################
+
+
+############################################################################
 def MouthOpen(Key, landmarks):
     Score = (abs(landmarks[11].y * 480 - landmarks[16].y * 480))
     if Score >= ACCEPTABLE_MOUTH_OPEN_SCORE and InputFlagArray[4] == False:
@@ -93,6 +141,10 @@ def MouthOpen(Key, landmarks):
         InputFlagArray[4] = False
 
 
+############################################################################
+
+
+############################################################################
 def EyeWide(Key, Score):
     if Score >= ACCEPTABLE_EYE_WIDE_SCORE and InputFlagArray[5] == False:
         SendInputToPC(Key, True)
@@ -102,6 +154,10 @@ def EyeWide(Key, Score):
         InputFlagArray[5] = False
 
 
+############################################################################
+
+
+############################################################################
 def BrowsUp(Key, Score):
     if Score >= ACCEPTABLE_BROWS_SCORE and InputFlagArray[6] == False:
         SendInputToPC(Key, True)
@@ -111,6 +167,11 @@ def BrowsUp(Key, Score):
         InputFlagArray[6] = False
 
 
+############################################################################
+
+
+############################################################################
+# Special global parameters used for HeadTrackingForMouse
 currX = 32767
 currY = 32767
 
@@ -121,6 +182,10 @@ x_res = win32api.GetSystemMetrics(0)
 y_res = win32api.GetSystemMetrics(1)
 
 
+############################################################################
+
+
+############################################################################
 def HeadTrackingForMouse(Landmarks, IsInGame):
     global currX, currY, saveX, saveY, x_res, y_res
     faceCenterX = (Landmarks[123].x + Landmarks[352].x) / 2
@@ -194,11 +259,20 @@ def HeadTrackingForMouse(Landmarks, IsInGame):
         saveY = j
 
 
+############################################################################
+
+
+############################################################################
 def HeadTrackingForMovement(Type, Landmarks):
     faceCenterY = (Landmarks[152].y + Landmarks[10].y) / 2
     yDiff = -int((faceCenterY - Landmarks[4].y) * 1000)
 
     tilt = int((Landmarks[10].x - Landmarks[152].x) * 1000)
+
+    if abs(yDiff) >= 20 or abs(tilt) >= 90:
+        keyboard.press('shift')
+    else:
+        keyboard.release('shift')
 
     if abs(yDiff) >= 8:
         if yDiff >= 0:
@@ -225,8 +299,13 @@ def HeadTrackingForMovement(Type, Landmarks):
         keyboard.release('d')
 
 
+############################################################################
+
+
+############################################################################
 def HeadTracking(Type, Landmarks, flag):
     if Type == 3:
         HeadTrackingForMouse(Landmarks, flag)
     else:
         HeadTrackingForMovement(Type, Landmarks)
+############################################################################

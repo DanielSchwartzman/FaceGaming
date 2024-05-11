@@ -2,32 +2,43 @@ import cv2
 import mediapipe as mp
 from mediapipe.tasks import python
 import time
-import InputController
-import DataManager
+from Services import InputController
+from Utils import DataManager
 
+############################################################################
+# Mediapipe initialization parameters
 BaseOptions = mp.tasks.BaseOptions
 FaceLandmarker = mp.tasks.vision.FaceLandmarker
 FaceLandmarkerOptions = mp.tasks.vision.FaceLandmarkerOptions
 FaceLandmarkerResult = mp.tasks.vision.FaceLandmarkerResult
 VisionRunningMode = mp.tasks.vision.RunningMode
+############################################################################
 
+
+############################################################################
+# OpenCV initialization parameters
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
 cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+############################################################################
 
+
+############################################################################
+# Global parameters
 flag = True
 ActivationFlag = False
 ReleaseFlag = False
-
 lock = 0
+############################################################################
 
 
+############################################################################
 def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timestamp_ms: int):
+    """
+    Mediapipe callback method, for each frame we send Mediapipe,
+    Mediapipe finds and extracts Facial landmarks and BlendShapes(Facial gestures).
+    """
     global ActivationFlag, ReleaseFlag, lock
-    if DataManager.WorkingThread == 1:
-        DataManager.WorkingThread = 2
-    else:
-        DataManager.WorkingThread = 1
     if len(result.face_landmarks) >= 1:
         if DataManager.KeyMapping[9] == 1:
             if abs(result.face_landmarks[0][11].y * 480 - result.face_landmarks[0][16].y * 480) > 30 and (
@@ -57,18 +68,27 @@ def CalculateResult(result: FaceLandmarkerResult, output_image: mp.Image, timest
                 InputController.BrowsUp(DataManager.KeyMapping[7], result.face_blendshapes[0][3].score * 1000)
             if DataManager.KeyMapping[8] != 0:
                 InputController.HeadTracking(DataManager.KeyMapping[8], result.face_landmarks[0], ActivationFlag)
-    lock -= 1
+    lock = False
+############################################################################
 
 
+############################################################################
+# Additional Mediapipe parameters
 options = FaceLandmarkerOptions(
-    base_options=BaseOptions(model_asset_path="face_landmarker.task"),
+    base_options=BaseOptions(model_asset_path="Services/face_landmarker.task"),
     running_mode=VisionRunningMode.LIVE_STREAM,
     result_callback=CalculateResult,
     output_face_blendshapes=True,
     output_facial_transformation_matrixes=True)
+############################################################################
 
 
+############################################################################
 def findAvailableCameras():
+    """
+    Function to find how many cameras the user has, by trying to access every possible camera
+    index and if we get an image, increment the amount of available camera devices.
+    """
     global cap
     flg = True
     CamIndex = 0
@@ -84,9 +104,16 @@ def findAvailableCameras():
             flg = False
         cv2.destroyAllWindows()
     DataManager.IsCamReady = True
+############################################################################
 
 
+############################################################################
 def DetectFaceLandmarks():
+    """
+    Main detection function, Takes a frame(What the camera currently sees) and sends it to the Mediapipe SDK
+    Runs infinitely or until the GUI window is destroyed
+    """
+
     global cap, lock
     findAvailableCameras()
     DataManager.KeyMapping[12] = 0
@@ -107,13 +134,13 @@ def DetectFaceLandmarks():
                 mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
                 if not DataManager.IsMinimized:
                     DataManager.Frame = frame
-                if lock < 2:
-                    lock += 1
+                if not lock:
+                    lock = True
                     landmarker.detect_async(mp_image, int(ms))
-            key = cv2.waitKey(1)
-            if key == ord('q') or DataManager.KeyMapping[10] == 1:
+            if DataManager.KeyMapping[10] == 1:
                 break
         cv2.destroyAllWindows()
+############################################################################
 
 
 if __name__ == "__main__":
