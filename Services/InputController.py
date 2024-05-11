@@ -177,17 +177,14 @@ currY = 32767
 
 saveX = currX
 saveY = currY
-
-x_res = win32api.GetSystemMetrics(0)
-y_res = win32api.GetSystemMetrics(1)
-
-
 ############################################################################
 
 
 ############################################################################
 def HeadTrackingForMouse(Landmarks, IsInGame):
-    global currX, currY, saveX, saveY, x_res, y_res
+    global currX, currY, saveX, saveY
+    x_res = win32api.GetSystemMetrics(0)
+    y_res = win32api.GetSystemMetrics(1)
     faceCenterX = (Landmarks[123].x + Landmarks[352].x) / 2
     faceCenterY = (Landmarks[152].y + Landmarks[10].y) / 2
 
