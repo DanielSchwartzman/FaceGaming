@@ -54,9 +54,6 @@ the desired camera is currently selected.
 
 NOTE - The stream is capped at 30FPS, while the overall system support higher framerate cameras
 
-### Demonstration
-TODO
-
 ## Installation
 You can either download the Executable version or the Python script
 
